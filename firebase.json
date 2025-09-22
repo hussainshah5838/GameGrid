@@ -1,0 +1,54 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "game-grid-dcc11",
+          "appId": "1:949319954406:android:d1a33802e3ccbe7303b027",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "game-grid-dcc11",
+          "appId": "1:949319954406:ios:4b8083816bfd7b6603b027",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "game-grid-dcc11",
+          "appId": "1:949319954406:ios:4b8083816bfd7b6603b027",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "game-grid-dcc11",
+          "configurations": {
+            "android": "1:949319954406:android:d1a33802e3ccbe7303b027",
+            "ios": "1:949319954406:ios:4b8083816bfd7b6603b027",
+            "macos": "1:949319954406:ios:4b8083816bfd7b6603b027",
+            "web": "1:949319954406:web:c1b4d8664b72155a03b027",
+            "windows": "1:949319954406:web:dec75bb89251978903b027"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

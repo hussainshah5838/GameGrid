@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/routes/routes.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
-import 'package:game_grid/view/screens/launch/onboarding.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
@@ -21,7 +21,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void splashScreenHandler() {
-    Timer(Duration(milliseconds: 1200), () => Get.offAll(() => Onboarding()));
+    Future.delayed(Duration(milliseconds: 1200)).then((v){
+      Get.offAllNamed( AppLinks.onBoardingScreen );
+    });
   }
 
   @override

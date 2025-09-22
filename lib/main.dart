@@ -1,15 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/bindings.dart';
 import 'package:game_grid/config/routes/routes.dart';
+import 'package:game_grid/firebase_options.dart';
 import 'package:get/get.dart';
 import 'config/theme/light_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(MyApp());
 }
 
-// DO NOT REMOVE Unless you find their usage.
 String dummyImg =
-    'https://images.unsplash.com/photo-1558507652-2d9626c4e67a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80';
+    'https://i.pinimg.com/736x/2e/e3/73/2ee373e5d634ffa3a6a99ea6a6e8b5a0.jpg';
 
 class MyApp extends StatelessWidget {
   @override
@@ -23,6 +29,7 @@ class MyApp extends StatelessWidget {
       initialRoute: AppLinks.splash_screen,
       getPages: AppRoutes.pages,
       defaultTransition: Transition.fadeIn,
+      initialBinding: AppBindings(),
     );
   }
 }

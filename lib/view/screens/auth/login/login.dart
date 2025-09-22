@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/routes/routes.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
@@ -98,7 +99,7 @@ class _LoginState extends State<Login> {
             MyButton(
               buttonText: 'Login',
               onTap: () {
-                Get.to(() => BottomNavBar());
+                Get.offAllNamed(AppLinks.navbarScreen);
               },
             ),
             Padding(
@@ -148,7 +149,7 @@ class _LoginState extends State<Login> {
                 ),
                 MyText(
                   onTap: () {
-                    Get.to(() => Register());
+                    Get.toNamed(AppLinks.signupScreen);
                   },
                   text: ' Register',
                   size: 16,

@@ -17,6 +17,7 @@ class MyTextField extends StatefulWidget {
     this.suffix,
     this.isReadOnly,
     this.onTap,
+    this.validator,
   }) : super(key: key);
 
   String? labelText, hintText;
@@ -27,6 +28,8 @@ class MyTextField extends StatefulWidget {
   int? maxLines;
   Widget? suffix;
   final VoidCallback? onTap;
+  final FormFieldValidator<String>? validator;
+
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -105,6 +108,7 @@ class _MyTextFieldState extends State<MyTextField> {
                             readOnly: widget.isReadOnly ?? false,
                             controller: _effectiveController,
                             onChanged: widget.onChanged,
+                            validator: widget.validator,
                             textInputAction: TextInputAction.next,
                             obscureText: widget.isObSecure!,
                             obscuringCharacter: '*',
@@ -121,7 +125,11 @@ class _MyTextFieldState extends State<MyTextField> {
                                 color: kTertiaryColor.withValues(alpha: 0.4),
                               ),
                               border: InputBorder.none,
+                            errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: kRedColor2)
+                            )
                             ),
+                            
                           ),
                         ),
                     ],

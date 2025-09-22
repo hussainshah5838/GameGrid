@@ -8,7 +8,10 @@ import 'package:game_grid/main.dart';
 import 'package:game_grid/view/screens/profile/profile.dart';
 import 'package:game_grid/view/screens/research/match_details/match_details.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
+import 'package:game_grid/view/widget/country_widget.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
+import 'package:game_grid/view/widget/favroite_widget.dart';
+import 'package:game_grid/view/widget/match_title_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
@@ -156,6 +159,7 @@ class _FootballState extends State<_Football> {
     {
       'title': 'United States',
       'totalCounter': '10',
+      'countryFlag' : Assets.usFlag,
       'matches': <Map<String, String>>[
         {
           'time': '09:45 am',
@@ -190,6 +194,7 @@ class _FootballState extends State<_Football> {
     {
       'title': 'Armenia',
       'totalCounter': '8',
+      'countryFlag' : Assets.armeniaFlag,
       'matches': <Map<String, String>>[
         {
           'time': '09:45 am',
@@ -224,6 +229,7 @@ class _FootballState extends State<_Football> {
     {
       'title': 'China',
       'totalCounter': '4',
+      'countryFlag' : Assets.chinaFlag,
       'matches': <Map<String, String>>[
         {
           'time': '09:45 am',
@@ -258,6 +264,7 @@ class _FootballState extends State<_Football> {
     {
       'title': 'Brazil',
       'totalCounter': '22',
+      'countryFlag' : Assets.brazilFlag,
       'matches': <Map<String, String>>[
         {
           'time': '09:45 am',
@@ -292,6 +299,7 @@ class _FootballState extends State<_Football> {
     {
       'title': 'India',
       'totalCounter': '11',
+      'countryFlag' : Assets.indiaFlag,
       'matches': <Map<String, String>>[
         {
           'time': '09:45 am',
@@ -383,7 +391,7 @@ class _FootballState extends State<_Football> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Favorites(
+              Favorites(
                 title: 'Favorites',
                 totalCounter: '2',
                 child: ListView.separated(
@@ -392,7 +400,7 @@ class _FootballState extends State<_Football> {
                   padding: AppSizes.ZERO,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
-                    return _MatchesTile(
+                    return MatchesTile(
                       isActive: true,
                       onTap: () {},
                       time: '09:45 am',
@@ -428,7 +436,8 @@ class _FootballState extends State<_Football> {
                   final country = countries[countryIndex];
                   final matches =
                       country['matches'] as List<Map<String, String>>;
-                  return _Country(
+                  return Country(
+                    countryImage: country['countryFlag']!,
                     title: country['title']!,
                     totalCounter: country['totalCounter']!,
                     child: ListView.separated(
@@ -438,7 +447,7 @@ class _FootballState extends State<_Football> {
                       physics: BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
                         final match = matches[index];
-                        return _MatchesTile(
+                        return MatchesTile(
                           isActive: index.isOdd,
                           onTap: () {},
                           time: match['time']!,
@@ -462,303 +471,5 @@ class _FootballState extends State<_Football> {
   }
 }
 
-class _Favorites extends StatefulWidget {
-  const _Favorites({
-    required this.title,
-    required this.child,
-    required this.totalCounter,
-  });
-  final String title;
-  final Widget child;
-  final String totalCounter;
 
-  @override
-  State<_Favorites> createState() => _FavoritesState();
-}
 
-class _FavoritesState extends State<_Favorites> {
-  late ExpandableController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = ExpandableController(initialExpanded: false);
-    _controller.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: kFillColor,
-        border: Border.all(color: kBorderColor, width: 1.0),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: ExpandableNotifier(
-        controller: _controller,
-        child: ScrollOnExpand(
-          child: ExpandablePanel(
-            controller: _controller,
-            theme: ExpandableThemeData(tapHeaderToExpand: true, hasIcon: false),
-            header: Container(
-              child: Row(
-                children: [
-                  Image.asset(Assets.imagesStar, height: 18),
-                  Expanded(
-                    child: MyText(
-                      paddingLeft: 2,
-                      text: widget.title,
-                      size: 16,
-                      weight: FontWeight.w500,
-                    ),
-                  ),
-                  if (widget.totalCounter != '0')
-                    Container(
-                      height: 24,
-                      width: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: kTertiaryColor.withValues(alpha: 0.05),
-                      ),
-                      child: Center(
-                        child: MyText(
-                          text: widget.totalCounter,
-                          size: 12,
-                          weight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  SizedBox(width: 8),
-                  RotatedBox(
-                    quarterTurns: _controller.expanded ? 2 : 0,
-                    child: Image.asset(Assets.imagesDropDown, height: 18),
-                  ),
-                ],
-              ),
-            ),
-            collapsed: SizedBox(),
-            expanded: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  height: 1,
-                  color: kBorderColor,
-                ),
-                widget.child,
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Country extends StatefulWidget {
-  const _Country({
-    required this.title,
-    required this.child,
-    required this.totalCounter,
-  });
-  final String title;
-  final Widget child;
-  final String totalCounter;
-
-  @override
-  State<_Country> createState() => _CountryState();
-}
-
-class _CountryState extends State<_Country> {
-  late ExpandableController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = ExpandableController(initialExpanded: false);
-    _controller.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: kFillColor,
-        border: Border.all(color: kBorderColor, width: 1.0),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: ExpandableNotifier(
-        controller: _controller,
-        child: ScrollOnExpand(
-          child: ExpandablePanel(
-            controller: _controller,
-            theme: ExpandableThemeData(tapHeaderToExpand: true, hasIcon: false),
-            header: Container(
-              child: Row(
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(width: 1.0, color: kTertiaryColor),
-                        ),
-                        child: CommonImageView(
-                          height: 32,
-                          width: 32,
-                          radius: 100,
-                          url: dummyImg,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Image.asset(Assets.imagesPlayer, height: 10),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: MyText(
-                      paddingLeft: 10,
-                      text: widget.title,
-                      size: 16,
-                      weight: FontWeight.w500,
-                    ),
-                  ),
-                  if (widget.totalCounter != '0')
-                    Container(
-                      height: 24,
-                      width: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: kTertiaryColor.withValues(alpha: 0.05),
-                      ),
-                      child: Center(
-                        child: MyText(
-                          text: widget.totalCounter,
-                          size: 12,
-                          weight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  SizedBox(width: 8),
-                  RotatedBox(
-                    quarterTurns: _controller.expanded ? 2 : 0,
-                    child: Image.asset(Assets.imagesDropDown, height: 18),
-                  ),
-                ],
-              ),
-            ),
-            collapsed: SizedBox(),
-            expanded: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  height: 1,
-                  color: kBorderColor,
-                ),
-                widget.child,
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MatchesTile extends StatelessWidget {
-  const _MatchesTile({
-    required this.isActive,
-    required this.onTap,
-    required this.time,
-    required this.team1,
-    required this.team2,
-    required this.team1Logo,
-    required this.team2Logo,
-  });
-  final bool isActive;
-  final VoidCallback onTap;
-  final String time;
-  final String team1;
-  final String team2;
-  final String team1Logo;
-  final String team2Logo;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Get.to(() => MatchDetails());
-      },
-      child: Row(
-        children: [
-          MyText(text: time, size: 13, weight: FontWeight.w700),
-          Container(
-            height: 42,
-            width: 1,
-            color: kBorderColor,
-            margin: EdgeInsets.symmetric(horizontal: 12),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(team1Logo, height: 20),
-                    Expanded(
-                      child: MyText(
-                        text: team1,
-                        size: 12,
-                        weight: FontWeight.w500,
-                        paddingLeft: 8,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6),
-                Row(
-                  children: [
-                    Image.asset(team2Logo, height: 20),
-                    Expanded(
-                      child: MyText(
-                        text: team2,
-                        size: 12,
-                        weight: FontWeight.w500,
-                        paddingLeft: 8,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 42,
-            width: 1,
-            color: isActive ? kSecondaryColor : kBorderColor,
-            margin: EdgeInsets.symmetric(horizontal: 10),
-          ),
-          GestureDetector(
-            onTap: onTap,
-            child: Image.asset(
-              isActive
-                  ? Assets.imagesNotificationFilled
-                  : Assets.imagesNotificationEmpty,
-              height: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

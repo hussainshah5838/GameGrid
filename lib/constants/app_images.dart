@@ -46,6 +46,22 @@ class Assets {
   /// assets/images/back.png
   static const String imagesBack = "assets/images/back.png";
 
+  /// Us flag assets
+  static const String usFlag = "assets/images/usFlag.png";
+
+  /// China flag asset
+  static const String chinaFlag = "assets/images/chinaFlag.png";
+
+  /// IndiaFlag asset
+  static const String indiaFlag = "assets/images/indiaFlag.png";
+  
+  //brazil flag asset
+  static const String brazilFlag = "assets/images/brzailFlag.png";
+
+  /// armenia Flag Asset
+  static const String armeniaFlag = "assets/images/armeniaFlag.png";
+
+
   /// Assets for imagesBar
   /// assets/images/bar.png
   static const String imagesBar = "assets/images/bar.png";
