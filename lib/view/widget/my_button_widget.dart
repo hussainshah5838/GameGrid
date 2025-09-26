@@ -40,7 +40,9 @@ class MyButton extends StatelessWidget {
         ),
         child: Material(
           color: Colors.transparent,
-          child: InkWell(
+          child: isLoading ? Center(
+            child: CircularProgressIndicator.adaptive(),
+          ) :  InkWell(
             onTap: disabled ? null : onTap,
             splashColor: disabled
                 ? Colors.transparent

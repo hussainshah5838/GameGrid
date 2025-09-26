@@ -41,29 +41,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBpS7Mhsqq8tVbSVdW2UTlQBH517kDrf9s',
-    appId: '1:949319954406:web:c1b4d8664b72155a03b027',
-    messagingSenderId: '949319954406',
-    projectId: 'game-grid-dcc11',
-    authDomain: 'game-grid-dcc11.firebaseapp.com',
-    storageBucket: 'game-grid-dcc11.firebasestorage.app',
-    measurementId: 'G-W5Y29R0HBG',
+    apiKey: 'AIzaSyC73wpF9WUKjg1-6KFRliNXVcN2CmS904w',
+    appId: '1:1033223304475:web:554316267e60bde2c04fbe',
+    messagingSenderId: '1033223304475',
+    projectId: 'gamegrid-5cf89',
+    authDomain: 'gamegrid-5cf89.firebaseapp.com',
+    storageBucket: 'gamegrid-5cf89.firebasestorage.app',
+    measurementId: 'G-2XZCS4Y2PE',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAlJfImpW6c_lhcGJSKrlpQNNROqBZBtqI',
-    appId: '1:949319954406:android:d1a33802e3ccbe7303b027',
-    messagingSenderId: '949319954406',
-    projectId: 'game-grid-dcc11',
-    storageBucket: 'game-grid-dcc11.firebasestorage.app',
+    apiKey: 'AIzaSyBsHWib_vZ6fpGlx6Xel7mss-hQDvEUMzw',
+    appId: '1:1033223304475:android:683f2870d6be4d2cc04fbe',
+    messagingSenderId: '1033223304475',
+    projectId: 'gamegrid-5cf89',
+    storageBucket: 'gamegrid-5cf89.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBvfhVZXnJ-llJJn21mps8p3Ik4m1WwtS0',
-    appId: '1:949319954406:ios:4b8083816bfd7b6603b027',
-    messagingSenderId: '949319954406',
-    projectId: 'game-grid-dcc11',
-    storageBucket: 'game-grid-dcc11.firebasestorage.app',
+    apiKey: 'AIzaSyB0IRphobmz00jdi9w0YpgbICkasRGnlYs',
+    appId: '1:1033223304475:ios:823b428ab794ff25c04fbe',
+    messagingSenderId: '1033223304475',
+    projectId: 'gamegrid-5cf89',
+    storageBucket: 'gamegrid-5cf89.firebasestorage.app',
     iosBundleId: 'com.example.gameGrid',
   );
 

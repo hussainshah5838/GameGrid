@@ -19,8 +19,7 @@ Future<AuthModel?> signUp({
     required String password,
     required String name,
     String? phone,
-    int? age,
-    String? role,
+    
   }) async {
     try {
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
@@ -43,8 +42,7 @@ Future<AuthModel?> signUp({
 
       return user;
     } catch (e) {
-      print("SignUp Error: $e");
-      return null;
+      throw ("Signup Error $e");
     }
   }
 
@@ -82,6 +80,27 @@ Future<AuthModel?> signUp({
        
 
 
+
+Future<AuthModel?> fetchCurrentUserDetails(String uid) async {
+  try {
+    final docSnapshot = await _firestore.collection("users").doc(uid).get();
+
+    if (docSnapshot.exists && docSnapshot.data() != null) {
+      return AuthModel.fromMap(docSnapshot.data()!);
+    } else {
+      return null; 
+    }
+  } catch (e) {
+    throw ("Error fetching user data: $e");
+  }
+}
+
+
+
+
+
+
+
 Future<AuthModel?> login({
     required String email,
     required String password,
@@ -97,8 +116,7 @@ Future<AuthModel?> login({
 
       return AuthModel.fromMap(snap.data() as Map<String, dynamic>);
     } catch (e) {
-      print("Login Error: $e");
-      return null;
+      throw ("Login Error $e");
     }
   }
 

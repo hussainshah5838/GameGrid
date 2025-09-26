@@ -3,6 +3,7 @@ import 'package:game_grid/config/routes/routes.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/services/onboard_service.dart';
 import 'package:game_grid/view/widget/my_button_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
@@ -51,7 +52,8 @@ class _OnboardingState extends State<Onboarding> {
         curve: Curves.ease,
       );
     } else {
-      Get.toNamed(AppLinks.loginScreen);
+      OnboardingService.instance.setOnboardingSeen();
+      Get.offAllNamed(AppLinks.loginScreen);
     }
   }
 

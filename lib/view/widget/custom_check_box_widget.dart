@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/utils.dart';
-
 // ignore: must_be_immutable
 class CustomCheckBox extends StatelessWidget {
-  CustomCheckBox({
+  const CustomCheckBox({
     Key? key,
     required this.isActive,
     required this.onTap,
     this.circularRadius,
+    this.isError = false,
     this.radius,
     this.unSelectedColor,
   }) : super(key: key);
 
+  final bool isError;
   final bool isActive;
   final VoidCallback onTap;
   final Color? unSelectedColor;
-  double? circularRadius;
-  double? radius;
+  final double? circularRadius;
+  final double? radius;
 
   @override
   Widget build(BuildContext context) {
@@ -32,30 +33,33 @@ class CustomCheckBox extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             width: 1,
-            color: isActive ? kSecondaryColor : unSelectedColor ?? kBorderColor,
+            color: isError
+                ? kRedColor2
+                : (isActive ? kSecondaryColor : unSelectedColor ?? kBorderColor),
           ),
           color: isActive ? kSecondaryColor : kFillColor,
           borderRadius: BorderRadius.circular(circularRadius ?? 8),
         ),
         child: !isActive
-            ? SizedBox()
+            ? const SizedBox()
             : circularRadius == 100
-            ? Container(
-                margin: EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kPrimaryColor,
-                ),
-              )
-            : Icon(
-                Icons.check,
-                size: (radius == 24) ? 16 : 12,
-                color: kPrimaryColor,
-              ),
+                ? Container(
+                    margin: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: kPrimaryColor,
+                    ),
+                  )
+                : const Icon(
+                    Icons.check,
+                    size: 16,
+                    color: kPrimaryColor,
+                  ),
       ),
     );
   }
 }
+
 
 class CustomRadio extends StatelessWidget {
   CustomRadio({

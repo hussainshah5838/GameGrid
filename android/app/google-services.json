@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "949319954406",
-    "project_id": "game-grid-dcc11",
-    "storage_bucket": "game-grid-dcc11.firebasestorage.app"
+    "project_number": "1033223304475",
+    "project_id": "gamegrid-5cf89",
+    "storage_bucket": "gamegrid-5cf89.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:949319954406:android:d1a33802e3ccbe7303b027",
+        "mobilesdk_app_id": "1:1033223304475:android:683f2870d6be4d2cc04fbe",
         "android_client_info": {
           "package_name": "com.example.game_grid"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAlJfImpW6c_lhcGJSKrlpQNNROqBZBtqI"
+          "current_key": "AIzaSyBsHWib_vZ6fpGlx6Xel7mss-hQDvEUMzw"
         }
       ],
       "services": {

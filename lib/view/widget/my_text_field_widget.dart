@@ -3,11 +3,12 @@ import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 
-// ignore: must_be_immutable
+
 class MyTextField extends StatefulWidget {
   MyTextField({
     Key? key,
     this.controller,
+    this.errorMessage,
     this.hintText,
     this.labelText,
     this.onChanged,
@@ -18,18 +19,20 @@ class MyTextField extends StatefulWidget {
     this.isReadOnly,
     this.onTap,
     this.validator,
+    this.hasError = false, 
   }) : super(key: key);
 
-  String? labelText, hintText;
-  TextEditingController? controller;
-  ValueChanged<String>? onChanged;
-  bool? isObSecure, isReadOnly;
-  double? marginBottom;
-  int? maxLines;
-  Widget? suffix;
+  final String? labelText, hintText;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final bool? isObSecure, isReadOnly;
+  final double? marginBottom;
+  final int? maxLines;
+  final Widget? suffix;
   final VoidCallback? onTap;
   final FormFieldValidator<String>? validator;
-
+  final bool hasError; 
+  final String? errorMessage;
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -39,6 +42,8 @@ class _MyTextFieldState extends State<MyTextField> {
   late FocusNode _focusNode;
   late TextEditingController _effectiveController;
   bool _createdController = false;
+
+  String? _localErrorMessage; // <-- keep internal error state
 
   @override
   void initState() {
@@ -52,7 +57,14 @@ class _MyTextFieldState extends State<MyTextField> {
     } else {
       _effectiveController = widget.controller!;
     }
-    _effectiveController.addListener(() => setState(() {}));
+
+    _effectiveController.addListener(() {
+      setState(() {
+        if (widget.validator != null) {
+          _localErrorMessage = widget.validator!(_effectiveController.text);
+        }
+      });
+    });
   }
 
   @override
@@ -61,92 +73,121 @@ class _MyTextFieldState extends State<MyTextField> {
     if (_createdController) _effectiveController.dispose();
     super.dispose();
   }
+@override
+Widget build(BuildContext context) {
+  final bool isFocused = _focusNode.hasFocus;
+  final bool hasValue = _effectiveController.text.isNotEmpty;
+  final bool showField = isFocused || hasValue;
 
-  @override
-  Widget build(BuildContext context) {
-    final bool isFocused = _focusNode.hasFocus;
-    final bool hasValue = _effectiveController.text.isNotEmpty;
-    final bool showField = isFocused || hasValue;
+  // Combine external + internal error
+  final String? effectiveErrorMessage =
+      widget.errorMessage ?? _localErrorMessage;
+  final bool hasError = widget.hasError ||
+      (effectiveErrorMessage != null && effectiveErrorMessage.isNotEmpty);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        _focusNode.requestFocus();
-        if (widget.onTap != null) widget.onTap!();
-      },
-      child: Focus(
-        focusNode: _focusNode,
-        child: Container(
-          margin: EdgeInsets.only(bottom: widget.marginBottom!),
-          decoration: BoxDecoration(
-            color: kFillColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(width: 1.0, color: kBorderColor),
-          ),
-          child: AnimatedPadding(
-            padding: EdgeInsets.fromLTRB(14, 12, 0, 12),
-            duration: Duration(milliseconds: 180),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MyText(
-                        text: widget.labelText ?? '',
-                        size: 12,
-                        color: isFocused ? kQuaternaryColor : kTertiaryColor,
-                        weight: FontWeight.w500,
-                      ),
-                      if (showField)
-                        SizedBox(
-                          height: 30,
-                          child: TextFormField(
-                            onTap: widget.onTap,
-                            cursorColor: kTertiaryColor,
-                            maxLines: widget.maxLines,
-                            readOnly: widget.isReadOnly ?? false,
-                            controller: _effectiveController,
-                            onChanged: widget.onChanged,
-                            validator: widget.validator,
-                            textInputAction: TextInputAction.next,
-                            obscureText: widget.isObSecure!,
-                            obscuringCharacter: '*',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: kTertiaryColor,
-                            ),
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                              hintText: widget.hintText,
-                              hintStyle: TextStyle(
-                                fontSize: 16,
-                                color: kTertiaryColor.withValues(alpha: 0.4),
-                              ),
-                              border: InputBorder.none,
-                            errorBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: kRedColor2)
-                            )
-                            ),
-                            
-                          ),
+  return GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onTap: () {
+      _focusNode.requestFocus();
+      widget.onTap?.call();
+    },
+    child: Focus(
+      focusNode: _focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+         
+          Container(
+            margin: EdgeInsets.only(bottom: 4), 
+            decoration: BoxDecoration(
+              color: kFillColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                width: 1.0,
+                color: hasError ? kRedColor2 : kBorderColor,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 0, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        MyText(
+                          text: widget.labelText ?? '',
+                          size: 12,
+                          color: hasError
+                              ? kRedColor2
+                              : isFocused
+                                  ? kQuaternaryColor
+                                  : kTertiaryColor,
+                          weight: FontWeight.w500,
                         ),
-                    ],
+                        if (showField)
+                          SizedBox(
+                            height: 30,
+                            child: TextFormField(
+                              controller: _effectiveController,
+                              validator: widget.validator,
+                              onChanged: widget.onChanged,
+                              obscureText: widget.isObSecure!,
+                              obscuringCharacter: '*',
+                              readOnly: widget.isReadOnly ?? false,
+                              cursorColor: kTertiaryColor,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: kTertiaryColor,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: widget.hintText,
+                                border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 4
+                                  ),
+                                  
+                                hintStyle: TextStyle(
+                                  fontSize: 16,
+                                  color: kTertiaryColor.withValues(alpha: 0.4),
+                                ),
+                               
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                if (widget.suffix != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 14),
-                    child: widget.suffix!,
-                  ),
-              ],
+                  if (widget.suffix != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: DefaultTextStyle(
+                        style: TextStyle(
+                          color: hasError ? kRedColor2 : kTertiaryColor,
+                        ),
+                        child: widget.suffix!,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
-        ),
+        
+          if (hasError)
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: MyText(
+                text: effectiveErrorMessage ?? "",
+                color: kRedColor,
+                size: 12,
+              ),
+            ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ignore: must_be_immutable
