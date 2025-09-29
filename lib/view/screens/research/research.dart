@@ -5,6 +5,7 @@ import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
 import 'package:game_grid/main.dart';
+import 'package:game_grid/services/matches_by_category_service.dart';
 import 'package:game_grid/view/screens/profile/profile.dart';
 import 'package:game_grid/view/screens/research/match_details/match_details.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
@@ -16,8 +17,21 @@ import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
-class Research extends StatelessWidget {
+class Research extends StatefulWidget {
   const Research({super.key});
+
+  @override
+  State<Research> createState() => _ResearchState();
+}
+
+class _ResearchState extends State<Research> {
+
+  @override
+  void initState() {
+    super.initState();
+    ApiServiceForCategory.instance.getMatches(endpoint: "/soccernew/home",);
+  }
+
 
   @override
   Widget build(BuildContext context) {

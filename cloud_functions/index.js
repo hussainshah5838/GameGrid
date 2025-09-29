@@ -73,7 +73,7 @@ exports.sendEmailOtp = functions.https.onCall(async (data, context) => {
   }
 });
 
-// 🔹 Verify OTP Function
+
 exports.verifyEmailOtp = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Sign in required');
@@ -121,7 +121,6 @@ exports.verifyEmailOtp = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('invalid-argument', 'Incorrect OTP');
   }
 
-  // ✅ Success
   await userRef.update({
     emailVerified: true,
     emailOtp: admin.firestore.FieldValue.delete(),
