@@ -15,6 +15,7 @@ class MyButton extends StatelessWidget {
     this.customChild,
     this.bgColor,
     this.textColor,
+    this.isLoading = false,
     this.disabled = false,
   });
 
@@ -22,6 +23,7 @@ class MyButton extends StatelessWidget {
   final VoidCallback onTap;
   double? height, textSize, radius;
   FontWeight? weight;
+  final bool isLoading;
   Widget? customChild;
   Color? bgColor, textColor;
   final bool disabled;
@@ -38,7 +40,9 @@ class MyButton extends StatelessWidget {
         ),
         child: Material(
           color: Colors.transparent,
-          child: InkWell(
+          child: isLoading ? Center(
+            child: CircularProgressIndicator.adaptive(),
+          ) :  InkWell(
             onTap: disabled ? null : onTap,
             splashColor: disabled
                 ? Colors.transparent
@@ -47,7 +51,9 @@ class MyButton extends StatelessWidget {
                 ? Colors.transparent
                 : kPrimaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(radius ?? 12),
-            child:
+            child: disabled ? CircularProgressIndicator.adaptive(backgroundColor: kBorderColor2,
+            valueColor: AlwaysStoppedAnimation<Color>(kBlackColor),
+            ) :  
                 customChild ??
                 Center(
                   child: MyText(
@@ -57,6 +63,7 @@ class MyButton extends StatelessWidget {
                     color: textColor ?? kPrimaryColor,
                   ),
                 ),
+                
           ),
         ),
       ),

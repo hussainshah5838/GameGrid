@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/routes/routes.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/auth_controllers.dart';
 import 'package:game_grid/view/screens/auth/forgot_password/forgot_password.dart';
 import 'package:game_grid/view/screens/auth/register/register.dart';
 import 'package:game_grid/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
@@ -19,6 +21,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final AuthController authController = Get.find();
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
 
@@ -50,26 +53,52 @@ class _LoginState extends State<Login> {
               title: 'Welcome Back!',
               subTitle: 'Please enter the credentials to get started.',
             ),
-            MyTextField(
+          Obx( () => MyTextField(
               controller: _emailController,
               labelText: 'Email address',
               hintText: 'Enter your email',
+               hasError: authController.emailError.value.isNotEmpty,
+                
+                validator: (v) {
+       authController.validateEmail(v);
+       return;  
+    },
+    errorMessage: authController.emailError.value,
+       onChanged: (value) {
+      authController.validateEmail(value);
+    },
               suffix: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Image.asset(Assets.imagesEmail, height: 24)],
               ),
+          )
             ),
-            MyTextField(
+            SizedBox(height: 10,),
+
+          Obx( () =>  MyTextField(
               controller: _passwordController,
               marginBottom: 12,
               labelText: 'Password',
               hintText: '********',
-              isObSecure: true,
+             
+              isObSecure: authController.isPasswordHide.value,
+                                hasError: authController.passwordError.value.isNotEmpty,
+                errorMessage: authController.passwordError.value,
+                onChanged: (v){
+                  authController.validatePassword(v);
+                },
+                validator: (v) {
+                  if (v == null || v.isEmpty) {
+                    return "This Field is required";
+                  }
+                  return null;
+                },
               suffix: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [Image.asset(Assets.imagesVisibility, height: 24)],
               ),
-            ),
+            )),
+            SizedBox(height: 3,),
             MyText(
               onTap: () {
                 Get.to(() => ForgotPassword());
@@ -82,7 +111,11 @@ class _LoginState extends State<Login> {
             ),
             Row(
               children: [
-                CustomCheckBox(isActive: false, onTap: () {}),
+              Obx( () =>  CustomCheckBox(isActive: authController.isRememberMeChecked.value,
+              
+               onTap: () {
+                 authController.toggleRememberMe();
+               })),
                 Expanded(
                   child: MyText(
                     text: 'Remember me',
@@ -95,12 +128,20 @@ class _LoginState extends State<Login> {
               ],
             ),
             SizedBox(height: 24),
-            MyButton(
+          Obx( () =>  MyButton(
+              isLoading: authController.isLoading.value,
               buttonText: 'Login',
-              onTap: () {
-                Get.to(() => BottomNavBar());
+              onTap: () async {
+                bool isValidData = authController.validateEmailAndPassword(_emailController.text, _passwordController.text);
+                if(!isValidData){
+                  return;
+                } else {
+                  
+                  await authController.login(_emailController.text.trim(), _passwordController.text.trim());
+
+                }
               },
-            ),
+            )),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Row(
@@ -148,7 +189,7 @@ class _LoginState extends State<Login> {
                 ),
                 MyText(
                   onTap: () {
-                    Get.to(() => Register());
+                    Get.toNamed(AppLinks.signupScreen);
                   },
                   text: ' Register',
                   size: 16,

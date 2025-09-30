@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/extensions/extension_on_context.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/auth_controllers.dart';
 import 'package:game_grid/main.dart';
 import 'package:game_grid/view/screens/profile/change_password.dart';
 import 'package:game_grid/view/screens/profile/edit_profile.dart';
@@ -10,6 +12,7 @@ import 'package:game_grid/view/screens/profile/privacy_policy.dart';
 import 'package:game_grid/view/screens/profile/user_preferences.dart';
 import 'package:game_grid/view/screens/subscription/manage_subscription/manage_subscription.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
+import 'package:game_grid/view/widget/common_shimmer_widget.dart';
 import 'package:game_grid/view/widget/custom_app_bar.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/custom_dialog_widget.dart';
@@ -18,8 +21,24 @@ import 'package:game_grid/view/widget/my_button_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
 
-class Profile extends StatelessWidget {
-  const Profile({super.key});
+class Profile extends StatefulWidget {
+   Profile({super.key});
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  final AuthController authController = Get.find();
+
+  @override
+  void initState() {
+    
+    super.initState();
+    authController.loadCurrentUserDetails();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,22 +77,27 @@ class Profile extends StatelessWidget {
                 ],
               ),
             ),
-            MyText(
+          Obx( () => authController.isLoading.value ? 
+          CommonShimmer(
+            height: 10,
+            width: 20,
+          )
+           :  MyText(
               paddingTop: 12,
               size: 16,
               textAlign: TextAlign.center,
               weight: FontWeight.w700,
-              text: 'Kevin Backer',
-            ),
-            MyText(
+              text: authController.currentUser.value!.name ?? "",
+            )),
+           Obx( () => MyText(
               paddingTop: 6,
               size: 14,
               textAlign: TextAlign.center,
               weight: FontWeight.w500,
               color: kQuaternaryColor,
-              text: 'kevinbacker23@gmail.com',
+              text: authController.currentUser.value!.email,
               paddingBottom: 16,
-            ),
+            )),
             Center(
               child: SizedBox(
                 width: 130,
@@ -270,7 +294,7 @@ class Profile extends StatelessWidget {
                                   'Are you sure want to logout from the app. This might lose some of your data.',
                               buttonText: 'Yes, Logout',
                               onTap: () {
-                                Get.back();
+                                authController.logout();
                               },
                             ),
                             isScrollControlled: false,

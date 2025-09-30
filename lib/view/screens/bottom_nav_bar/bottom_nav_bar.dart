@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
+import 'package:game_grid/model/navbar_model.dart';
 import 'package:game_grid/view/screens/games/games.dart';
 import 'package:game_grid/view/screens/gpt/gpt.dart';
 import 'package:game_grid/view/screens/gpt/gpt_drawer.dart';
@@ -21,29 +22,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   void _getCurrentIndex(int index) => setState(() {
     _currentIndex = index;
   });
-  final List<Map<String, dynamic>> _items = [
-    {
-      'icon': Assets.imagesResearch,
-      'iconA': Assets.imagesResearchA,
-      'label': 'Research',
-    },
-    {
-      'icon': Assets.imagesGames,
-      'iconA': Assets.imagesGamesA,
-      'label': 'Games',
-    },
-    {'icon': Assets.imagesGames, 'iconA': Assets.imagesGames, 'label': ''},
-    {
-      'icon': Assets.imagesTrends,
-      'iconA': Assets.imagesTrendsA,
-      'label': 'Trends',
-    },
-    {
-      'icon': Assets.imagesTickets,
-      'iconA': Assets.imagesTicketsA,
-      'label': 'Tickets',
-    },
-  ];
+  
 
   final _key = GlobalKey<ScaffoldState>();
   @override
@@ -77,12 +56,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
               )
             : null,
         body: _screens[_currentIndex],
-        bottomNavigationBar: _buildNavBar(_items),
+        bottomNavigationBar: _buildNavBar(items),
       ),
     );
   }
 
-  Stack _buildNavBar(List<Map<String, dynamic>> _items) {
+  Stack _buildNavBar(List<BottomNavItem> _items) {
     return Stack(
       children: [
         ClipRRect(
@@ -90,7 +69,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
-              height: 72,
+           
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -123,38 +102,41 @@ class _BottomNavBarState extends State<BottomNavBar> {
                 onTap: (index) => _getCurrentIndex(index),
                 items: List.generate(_items.length, (index) {
                   var data = _items[index];
-                  return BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Image.asset(
-                        _currentIndex == index ? data["iconA"] : data["icon"],
-                        width: 24,
-                        height: 24,
-                      ),
+
+                   if (index == 2) {
+  return BottomNavigationBarItem(
+    icon: Transform.translate(
+      offset: const Offset(0, 6), 
+      child: Image.asset(
+        data.icon,
+        width: 52,
+        height: 52,
+      ),
+    ),
+    label: "", // no label
+  );
+}
+
+                 return BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Image.asset(
+                      _currentIndex == index && data.iconA != null
+                          ? data.iconA!
+                          : data.icon,
+                      width: 24,
+                      height: 24,
                     ),
-                    label: data["label"],
-                  );
+                  ),
+                  label: data.label ?? "",
+                );
+            
                 }),
               ),
             ),
           ),
         ),
-        Positioned(
-          bottom: 0,
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _currentIndex = 2;
-                });
-              },
-              child: Image.asset(Assets.imagesBot, height: 52),
-            ),
-          ),
-        ),
+      
       ],
     );
   }
