@@ -5,8 +5,6 @@ import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
 import 'package:game_grid/controllers/auth_controllers.dart';
 import 'package:game_grid/view/screens/auth/forgot_password/forgot_password.dart';
-import 'package:game_grid/view/screens/auth/register/register.dart';
-import 'package:game_grid/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:game_grid/view/widget/custom_check_box_widget.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/heading_widget.dart';

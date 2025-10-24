@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:game_grid/config/extensions/extension_on_context.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
