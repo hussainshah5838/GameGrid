@@ -17,6 +17,9 @@ import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
+import '../../../model/football_scores_model.dart';
+import '../../../services/api_services.dart';
+
 class Research extends StatefulWidget {
   const Research({super.key});
 
@@ -150,6 +153,8 @@ class _ResearchState extends State<Research> {
   }
 }
 
+// Replace the existing _Football and _FootballState classes in your UI file.
+
 class _Football extends StatefulWidget {
   const _Football({Key? key}) : super(key: key);
 
@@ -158,7 +163,7 @@ class _Football extends StatefulWidget {
 }
 
 class _FootballState extends State<_Football> {
-  int selectedIndex = 0;
+  int selectedIndex = 3; // 'Today' is often a good default
   final List<String> tabs = [
     'May 14',
     'May 15',
@@ -167,323 +172,190 @@ class _FootballState extends State<_Football> {
     'Tomorrow',
     'May 19',
     'May 20',
-    'May 19',
   ];
-  final List<Map<String, dynamic>> countries = [
-    {
-      'title': 'United States',
-      'totalCounter': '10',
-      'countryFlag' : Assets.usFlag,
-      'matches': <Map<String, String>>[
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-      ],
-    },
-    {
-      'title': 'Armenia',
-      'totalCounter': '8',
-      'countryFlag' : Assets.armeniaFlag,
-      'matches': <Map<String, String>>[
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-      ],
-    },
-    {
-      'title': 'China',
-      'totalCounter': '4',
-      'countryFlag' : Assets.chinaFlag,
-      'matches': <Map<String, String>>[
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-      ],
-    },
-    {
-      'title': 'Brazil',
-      'totalCounter': '22',
-      'countryFlag' : Assets.brazilFlag,
-      'matches': <Map<String, String>>[
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-      ],
-    },
-    {
-      'title': 'India',
-      'totalCounter': '11',
-      'countryFlag' : Assets.indiaFlag,
-      'matches': <Map<String, String>>[
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-        {
-          'time': '09:45 am',
-          'team1': 'FC Barcelona',
-          'team2': 'Real Madrid',
-          'team1Logo': Assets.imagesLy,
-          'team2Logo': Assets.imagesLy,
-        },
-      ],
-    },
-  ];
+
+  // A Future to hold our network request
+  late Future<FootballApiResponse> _footballDataFuture;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Start the API call when the widget is first created
+    _footballDataFuture = _apiService.fetchFootballScores();
+  }
+
+  // Helper function to map country names from the API to your local assets
+  // since the API does not provide flag images.
+  String _getFlagForCountry(String categoryName) {
+    if (categoryName.toLowerCase().contains('brazil')) {
+      return Assets.brazilFlag;
+    } else if (categoryName.toLowerCase().contains('canada')) {
+      // You'll need to add a Canada flag to your assets
+      return Assets.usFlag; // Placeholder, replace with actual Canadian flag asset
+    } else if (categoryName.toLowerCase().contains('japan')) {
+      // You'll need to add a Japan flag to your assets
+      return Assets.chinaFlag; // Placeholder
+    }
+    return Assets.usFlag; // Default flag
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      padding: AppSizes.ZERO,
-      physics: BouncingScrollPhysics(),
-      children: [
-        // ...existing code...
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          height: 48,
-          decoration: BoxDecoration(
-            color: kFillColor,
-            border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
-          ),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: tabs.length,
-            padding: AppSizes.HORIZONTAL,
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: true,
-            separatorBuilder: (context, index) => SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final isSelected = selectedIndex == index;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  height: Get.height,
-                  decoration: BoxDecoration(
-                    color: isSelected ? kSecondaryColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    tabs[index],
-                    style: TextStyle(
-                      fontFamily: AppFonts.Satoshi,
-                      fontWeight: FontWeight.w500,
-                      color: isSelected ? kPrimaryColor : kQuaternaryColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+    return FutureBuilder<FootballApiResponse>(
+      future: _footballDataFuture,
+      builder: (context, snapshot) {
+        // Case 1: Waiting for data
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-        Padding(
-          padding: AppSizes.DEFAULT,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Favorites(
-                title: 'Favorites',
-                totalCounter: '2',
-                child: ListView.separated(
-                  itemCount: 2,
-                  shrinkWrap: true,
-                  padding: AppSizes.ZERO,
-                  physics: BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return MatchesTile(
-                      isActive: true,
-                      onTap: () {},
-                      time: '09:45 am',
-                      team1: 'FC Barcelona',
-                      team2: 'Real Madrid',
-                      team1Logo: Assets.imagesLy,
-                      team2Logo: Assets.imagesLy,
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return SizedBox(height: 16);
-                  },
-                ),
-              ),
-              MyText(
-                paddingTop: 12,
-                paddingBottom: 8,
-                text: '34 Matches found',
-                size: 12,
-                weight: FontWeight.w500,
-                color: kQuaternaryColor,
-              ),
+        // Case 2: Error occurred
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
 
-              ListView.separated(
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 8);
-                },
-                padding: AppSizes.ZERO,
-                itemCount: countries.length,
+        // Case 3: Data has been successfully fetched
+        if (!snapshot.hasData || snapshot.data!.scores.categories.isEmpty) {
+          return const Center(child: Text('No matches found.'));
+        }
+
+        final categories = snapshot.data!.scores.categories;
+
+        return ListView(
+          shrinkWrap: true,
+          padding: AppSizes.ZERO,
+          physics: const BouncingScrollPhysics(),
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              height: 48,
+              decoration: BoxDecoration(
+                color: kFillColor,
+                border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
+              ),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: tabs.length,
+                padding: AppSizes.HORIZONTAL,
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (context, countryIndex) {
-                  final country = countries[countryIndex];
-                  final matches =
-                      country['matches'] as List<Map<String, String>>;
-                  return Country(
-                    countryImage: country['countryFlag']!,
-                    title: country['title']!,
-                    totalCounter: country['totalCounter']!,
-                    child: ListView.separated(
-                      itemCount: matches.length,
-                      shrinkWrap: true,
-                      padding: AppSizes.ZERO,
-                      physics: BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final match = matches[index];
-                        return MatchesTile(
-                          isActive: index.isOdd,
-                          onTap: () {},
-                          time: match['time']!,
-                          team1: match['team1']!,
-                          team2: match['team2']!,
-                          team1Logo: match['team1Logo']!,
-                          team2Logo: match['team2Logo']!,
-                        );
-                      },
-                      separatorBuilder: (context, index) =>
-                          SizedBox(height: 16),
+                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final isSelected = selectedIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                        // NOTE: In a real app, you would re-trigger the API call here
+                        // with a different endpoint based on the selected tab.
+                        // For now, it just changes the UI state.
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      height: Get.height,
+                      decoration: BoxDecoration(
+                        color: isSelected ? kSecondaryColor : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        tabs[index],
+                        style: TextStyle(
+                          fontFamily: AppFonts.Satoshi,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? kPrimaryColor : kQuaternaryColor,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                   );
                 },
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+            Padding(
+              padding: AppSizes.DEFAULT,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Favorites section remains static for now
+                  Favorites(
+                    title: 'Favorites',
+                    totalCounter: '2',
+                    child: ListView.separated(
+                      itemCount: 2,
+                      shrinkWrap: true,
+                      padding: AppSizes.ZERO,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return MatchesTile(
+                          isActive: true,
+                          onTap: () {},
+                          time: '09:45 am',
+                          team1: 'FC Barcelona',
+                          team2: 'Real Madrid',
+                          team1Logo: Assets.imagesLy,
+                          team2Logo: Assets.imagesLy,
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 16);
+                      },
+                    ),
+                  ),
+                  MyText(
+                    paddingTop: 12,
+                    paddingBottom: 8,
+                    text: '${categories.fold(0, (sum, cat) => sum + cat.matches.length)} Matches found',
+                    size: 12,
+                    weight: FontWeight.w500,
+                    color: kQuaternaryColor,
+                  ),
+                  ListView.separated(
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    padding: AppSizes.ZERO,
+                    itemCount: categories.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(), // Parent ListView scrolls
+                    itemBuilder: (context, categoryIndex) {
+                      final category = categories[categoryIndex];
+                      if (category.matches.isEmpty) {
+                        return const SizedBox.shrink(); // Don't show categories with no matches
+                      }
+                      return Country(
+                        countryImage: _getFlagForCountry(category.name),
+                        title: category.name,
+                        totalCounter: category.matches.length.toString(),
+                        child: ListView.separated(
+                          itemCount: category.matches.length,
+                          shrinkWrap: true,
+                          padding: AppSizes.ZERO,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, matchIndex) {
+                            final match = category.matches[matchIndex];
+                            return MatchesTile(
+                              isActive: match.status == "Live", // Example logic
+                              onTap: () => Get.to(()=> MatchDetails()),
+                              time: match.time,
+                              team1: match.localteam.name,
+                              team2: match.awayteam.name,
+                              // API does not provide logos, using placeholders
+                              team1Logo: Assets.imagesLy,
+                              team2Logo: Assets.imagesLy,
+                            );
+                          },
+                          separatorBuilder: (context, index) => const SizedBox(height: 16),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
-
-
-
