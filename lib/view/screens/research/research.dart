@@ -1,10 +1,12 @@
-import 'package:expandable/expandable.dart';
+
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/helper/logger.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
 import 'package:game_grid/main.dart';
+import 'package:game_grid/model/todays_matches_model.dart';
 import 'package:game_grid/services/matches_by_category_service.dart';
 import 'package:game_grid/view/screens/profile/profile.dart';
 import 'package:game_grid/view/screens/research/match_details/match_details.dart';
@@ -32,7 +34,7 @@ class _ResearchState extends State<Research> {
   @override
   void initState() {
     super.initState();
-    ApiServiceForCategory.instance.getMatches(endpoint: "/soccernew/home",);
+    // ApiServiceForCategory.instance.getMatches(endpoint: "/soccernew/home",);
   }
 
 
@@ -144,6 +146,7 @@ class _ResearchState extends State<Research> {
                 _Football(),
                 _Football(),
                 _Football(),
+                //  Soccer(),
               ],
             ),
           ),
@@ -163,7 +166,7 @@ class _Football extends StatefulWidget {
 }
 
 class _FootballState extends State<_Football> {
-  int selectedIndex = 3; // 'Today' is often a good default
+  int selectedIndex = 3;
   final List<String> tabs = [
     'May 14',
     'May 15',
@@ -175,34 +178,22 @@ class _FootballState extends State<_Football> {
   ];
 
   // A Future to hold our network request
-  late Future<FootballApiResponse> _footballDataFuture;
+  late Future<TodaysMatchesModel?> _footballDataFuture;
   final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
     // Start the API call when the widget is first created
-    _footballDataFuture = _apiService.fetchFootballScores();
+    // _footballDataFuture = _apiService.fetchFootballScores();
+    _footballDataFuture = _apiService.fetchTodayMatches("todays-matches");
   }
 
-  // Helper function to map country names from the API to your local assets
-  // since the API does not provide flag images.
-  String _getFlagForCountry(String categoryName) {
-    if (categoryName.toLowerCase().contains('brazil')) {
-      return Assets.brazilFlag;
-    } else if (categoryName.toLowerCase().contains('canada')) {
-      // You'll need to add a Canada flag to your assets
-      return Assets.usFlag; // Placeholder, replace with actual Canadian flag asset
-    } else if (categoryName.toLowerCase().contains('japan')) {
-      // You'll need to add a Japan flag to your assets
-      return Assets.chinaFlag; // Placeholder
-    }
-    return Assets.usFlag; // Default flag
-  }
+  
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FootballApiResponse>(
+    return FutureBuilder<TodaysMatchesModel?>(
       future: _footballDataFuture,
       builder: (context, snapshot) {
         // Case 1: Waiting for data
@@ -212,15 +203,18 @@ class _FootballState extends State<_Football> {
 
         // Case 2: Error occurred
         if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          print(snapshot.error);
+          return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white),));
         }
 
         // Case 3: Data has been successfully fetched
-        if (!snapshot.hasData || snapshot.data!.scores.categories.isEmpty) {
-          return const Center(child: Text('No matches found.'));
-        }
+        // if (!snapshot.hasData || snapshot.data != null) {
+        //   return const Center(child: Text('No matches found.'));
+        // }
 
-        final categories = snapshot.data!.scores.categories;
+        final categories = snapshot.data!;
+
+        prettyLogger(categories);
 
         return ListView(
           shrinkWrap: true,
@@ -279,7 +273,7 @@ class _FootballState extends State<_Football> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Favorites section remains static for now
+                
                   Favorites(
                     title: 'Favorites',
                     totalCounter: '2',
@@ -304,10 +298,14 @@ class _FootballState extends State<_Football> {
                       },
                     ),
                   ),
-                  MyText(
+
+                 
+                  Column( children: categories.data.map((e) => Column(
+                    children:  [
+                      MyText(
                     paddingTop: 12,
                     paddingBottom: 8,
-                    text: '${categories.fold(0, (sum, cat) => sum + cat.matches.length)} Matches found',
+                    text: '${categories.data.length} Matches found',
                     size: 12,
                     weight: FontWeight.w500,
                     color: kQuaternaryColor,
@@ -315,34 +313,44 @@ class _FootballState extends State<_Football> {
                   ListView.separated(
                     separatorBuilder: (context, index) => const SizedBox(height: 8),
                     padding: AppSizes.ZERO,
-                    itemCount: categories.length,
+                    itemCount: categories.data.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(), // Parent ListView scrolls
                     itemBuilder: (context, categoryIndex) {
-                      final category = categories[categoryIndex];
-                      if (category.matches.isEmpty) {
-                        return const SizedBox.shrink(); // Don't show categories with no matches
-                      }
+                      final match = categories.data[categoryIndex];
+                  
+                      final teamAName = match.awayName;          // e.g. "VfL Wolfsburg Women"
+                      final teamBName = match.homeName; 
+                      prettyLogger(teamBName);         // e.g. "Manchester United WFC"
+                      prettyLogger(teamAName);         // e.g. "Manchester United WFC"
+                      // final isLive   = match. ?? false;
+                  
+                      // final category = categories.data[categoryIndex];
+                      // if (category.matches.isEmpty) {
+                      //   return const SizedBox.shrink(); // Don't show categories with no matches
+                      // }
                       return Country(
-                        countryImage: _getFlagForCountry(category.name),
-                        title: category.name,
-                        totalCounter: category.matches.length.toString(),
+                        countryImage: categories.data[categoryIndex].awayImage,
+                        title: categories.data[categoryIndex].awayName,
+                        totalCounter: categories.data.length.toString(),
                         child: ListView.separated(
-                          itemCount: category.matches.length,
+                          itemCount: categories.data.length,
                           shrinkWrap: true,
                           padding: AppSizes.ZERO,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, matchIndex) {
-                            final match = category.matches[matchIndex];
+                            final match = categories.data[matchIndex];
                             return MatchesTile(
                               isActive: match.status == "Live", // Example logic
-                              onTap: () => Get.to(()=> MatchDetails()),
-                              time: match.time,
-                              team1: match.localteam.name,
-                              team2: match.awayteam.name,
+                              onTap: () => Get.to(()=> MatchDetails(
+                                todaysMatchesModel: categories.data[categoryIndex],
+                              )),
+                              time: match.stadiumName,
+                              team1: match.awayName,
+                              team2: match.homeName,
                               // API does not provide logos, using placeholders
-                              team1Logo: Assets.imagesLy,
-                              team2Logo: Assets.imagesLy,
+                              team1Logo: match.awayUrl,
+                              team2Logo: match.awayUrl,
                             );
                           },
                           separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -350,7 +358,14 @@ class _FootballState extends State<_Football> {
                       );
                     },
                   ),
+                    ],
+                  )
+                  
+                  ).toList()
+                  
+                  )    
                 ],
+              
               ),
             ),
           ],

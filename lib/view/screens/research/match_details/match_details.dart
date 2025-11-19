@@ -3,6 +3,7 @@ import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/model/todays_matches_model.dart';
 import 'package:game_grid/view/screens/notifications/notifications.dart';
 import 'package:game_grid/view/screens/research/match_details/r_players.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
@@ -15,7 +16,8 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class MatchDetails extends StatelessWidget {
-  const MatchDetails({super.key});
+  final Datum todaysMatchesModel;
+  const MatchDetails({super.key, required this.todaysMatchesModel});
 
   @override
   Widget build(BuildContext context) {
@@ -92,13 +94,14 @@ class MatchDetails extends StatelessWidget {
                             ),
                             padding: EdgeInsets.all(14),
                             child: Row(
+                              spacing: 10,
                               children: [
                                 Column(
                                   children: [
                                     Image.asset(Assets.imagesFc, height: 36),
                                     MyText(
                                       paddingTop: 12,
-                                      text: 'FC Barcelona',
+                                      text: todaysMatchesModel.awayName,
                                       size: 13,
                                       weight: FontWeight.w700,
                                     ),
@@ -124,7 +127,7 @@ class MatchDetails extends StatelessWidget {
                                       ),
                                       SizedBox(height: 4),
                                       MyText(
-                                        text: 'California, USA',
+                                        text: todaysMatchesModel.stadiumLocation,
                                         size: 12,
                                         weight: FontWeight.w500,
                                         color: kQuaternaryColor,
@@ -138,7 +141,7 @@ class MatchDetails extends StatelessWidget {
                                     Image.asset(Assets.imagesRd, height: 36),
                                     MyText(
                                       paddingTop: 12,
-                                      text: 'Real Madrid',
+                                      text: todaysMatchesModel.homeName,
                                       size: 13,
                                       weight: FontWeight.w700,
                                     ),
@@ -196,6 +199,8 @@ class MatchDetails extends StatelessWidget {
 }
 
 class _Teams extends StatefulWidget {
+  // final Datum todaysMatchesModel;
+  // _Teams({required this.todaysMatchesModel});
 
   @override
   State<_Teams> createState() => _TeamsState();

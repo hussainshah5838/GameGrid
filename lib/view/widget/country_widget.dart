@@ -64,7 +64,7 @@ class CountryState extends State<Country> {
                           height: 32,
                           width: 32,
                           radius: 100,
-                          imagePath: widget.countryImage,
+                          url: widget.countryImage,
                         ),
                       ),
                       Positioned(

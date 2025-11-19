@@ -21,10 +21,24 @@ class Scores {
 
   Scores({required this.categories, required this.sport});
 
-  factory Scores.fromJson(Map<String, dynamic> json) => Scores(
-    categories: List<Category>.from(json["category"].map((x) => Category.fromJson(x))),
-    sport: json["sport"],
-  );
+  factory Scores.fromJson(Map<String, dynamic> json) {
+    var categories = <Category>[];
+
+    if (json["category"] != null) {
+      if (json["category"] is List) {
+        categories = List<Category>.from(
+          json["category"].map((x) => Category.fromJson(x)),
+        );
+      } else if (json["category"] is Map) {
+        categories.add(Category.fromJson(json["category"]));
+      }
+    }
+
+    return Scores(
+      categories: categories,
+      sport: json["sport"] ?? 'Unknown',
+    );
+  }
 }
 
 class Category {
@@ -34,7 +48,7 @@ class Category {
 
   Category({required this.id, required this.name, required this.matches});
 
-  factory Category.fromJson(Map<String, dynamic> json) {
+  factory Category.fromJson(Map<dynamic, dynamic> json) {
     var matchList = <Match>[];
     // The API returns 'match' as an object OR a list. This handles both cases.
     if (json['match'] != null) {

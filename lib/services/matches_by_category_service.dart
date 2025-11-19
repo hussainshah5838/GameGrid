@@ -19,11 +19,12 @@ class ApiServiceForCategory {
       if (response.statusCode != 200) {
         throw Exception("Failed with status: ${response.statusCode}");
       }
-
+        
       final rawXml = response.data.toString();
       final document = XmlDocument.parse(rawXml);
       final scoresResponse = ScoresResponse.fromXml(document);
 
+      prettyLogger(scoresResponse.categories.map((e) => e.matches));
     
       return scoresResponse;
     } catch (e) {
