@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:game_grid/config/helper/logger.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
-import 'package:game_grid/model/todays_matches_model.dart';
+import 'package:game_grid/controllers/research_controller.dart';
+import 'package:game_grid/model/match_details_model.dart';
 import 'package:game_grid/view/screens/notifications/notifications.dart';
 import 'package:game_grid/view/screens/research/match_details/r_players.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
@@ -11,18 +13,99 @@ import 'package:game_grid/view/widget/custom_check_box_widget.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/custom_drop_down_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-class MatchDetails extends StatelessWidget {
-  final Datum todaysMatchesModel;
-  const MatchDetails({super.key, required this.todaysMatchesModel});
+const String _imageBase = 'https://football-data-api.com/';
 
+String _resolveImageUrl(String? url, {String? fallback}) {
+  final primary = (url ?? '').trim();
+  final secondary = (fallback ?? '').trim();
+  final candidate = primary.isNotEmpty ? primary : secondary;
+  if (candidate.isEmpty) return '';
+  if (candidate.startsWith('http')) return candidate;
+  if (candidate.startsWith('//')) return 'https:$candidate';
+  final trimmed = candidate.startsWith('/') ? candidate.substring(1) : candidate;
+  return '$_imageBase$trimmed';
+}
+
+String _safeText(String? value, {String fallback = '--'}) =>
+    (value == null || value.isEmpty) ? fallback : value;
+
+String _formatPercent(num? value) {
+  if (value == null) return '--';
+  return '${value.toString()}%';
+}
+
+String _formatNum(num? value) {
+  if (value == null) return '--';
+  return value.toString();
+}
+
+num? _safeSum(num? a, num? b) {
+  if (a == null && b == null) return null;
+  return (a ?? 0) + (b ?? 0);
+}
+
+class MatchDetails extends StatefulWidget {
+  final String matchId;
+  const MatchDetails({super.key, required this.matchId});
+
+  @override
+  State<MatchDetails> createState() => _MatchDetailsState();
+}
+
+class _MatchDetailsState extends State<MatchDetails> {
+
+  late final ResearchController controller;
+
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<ResearchController>();
+    controller.fetchMatchDetails(endpoint: "match", matchId:widget.matchId);
+  }
   @override
   Widget build(BuildContext context) {
     final List<String> tabViews = ['Teams', 'Players'];
-    return DefaultTabController(
+    
+    return Obx( () { 
+      if(controller.isDetailsLoading.value){
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if(controller.detailsError.value.isNotEmpty){
+        prettyLogger(controller.detailsError.value);
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Error: ${controller.detailsError.value}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => controller.fetchMatchDetails(
+                  endpoint: "match",
+                  matchId: widget.matchId,
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      }
+
+      final MatchDetailsModel? detailsModel = controller.matchDetails.value;
+      final Data? details = detailsModel?.data;
+
+      if (details == null) {
+        return const Center(child: Text('No details available.'));
+      }
+
+     return  DefaultTabController(
       length: tabViews.length,
       initialIndex: 0,
       child: CustomContainer(
@@ -98,10 +181,18 @@ class MatchDetails extends StatelessWidget {
                               children: [
                                 Column(
                                   children: [
-                                    Image.asset(Assets.imagesFc, height: 36),
+                                    CommonImageView(
+                                      url: _resolveImageUrl(
+                                        details.awayImage ?? "",
+                                        fallback: details.awayUrl,
+                                      ),
+                                      height: 36,
+                                      width: 36,
+                                      radius: 18,
+                                    ),
                                     MyText(
                                       paddingTop: 12,
-                                      text: todaysMatchesModel.awayName,
+                                      text: _safeText(details.awayName),
                                       size: 13,
                                       weight: FontWeight.w700,
                                     ),
@@ -112,7 +203,7 @@ class MatchDetails extends StatelessWidget {
                                   child: Column(
                                     children: [
                                       MyText(
-                                        text: 'Agg: 1 - 0',
+                                        text: 'Agg: ${details.homeGoalCount} - ${details.awayGoalCount}',
                                         size: 12,
                                         weight: FontWeight.w500,
                                         color: kQuaternaryColor,
@@ -120,14 +211,14 @@ class MatchDetails extends StatelessWidget {
                                       ),
                                       SizedBox(height: 4),
                                       MyText(
-                                        text: 'November 11, 2024',
+                                        text: details.season ?? "",
                                         size: 12,
                                         textAlign: TextAlign.center,
                                         weight: FontWeight.w700,
                                       ),
                                       SizedBox(height: 4),
                                       MyText(
-                                        text: todaysMatchesModel.stadiumLocation,
+                                        text: _safeText(details.stadiumLocation),
                                         size: 12,
                                         weight: FontWeight.w500,
                                         color: kQuaternaryColor,
@@ -138,10 +229,18 @@ class MatchDetails extends StatelessWidget {
                                 ),
                                 Column(
                                   children: [
-                                    Image.asset(Assets.imagesRd, height: 36),
+                                    CommonImageView(
+                                      url: _resolveImageUrl(
+                                        details.homeImage ?? "",
+                                        fallback: details.homeUrl,
+                                      ),
+                                      height: 36,
+                                      width: 36,
+                                      radius: 18,
+                                    ),
                                     MyText(
                                       paddingTop: 12,
-                                      text: todaysMatchesModel.homeName,
+                                      text: _safeText(details.homeName),
                                       size: 13,
                                       weight: FontWeight.w700,
                                     ),
@@ -189,18 +288,20 @@ class MatchDetails extends StatelessWidget {
             },
             body: TabBarView(
               physics: BouncingScrollPhysics(),
-              children: [_Teams(), RPlayers()],
+              children: [_Teams(details: details), RPlayers(details: details)],
             ),
           ),
         ),
       ),
     );
+  });
   }
+
 }
 
 class _Teams extends StatefulWidget {
-  // final Datum todaysMatchesModel;
-  // _Teams({required this.todaysMatchesModel});
+  final Data details;
+  const _Teams({required this.details});
 
   @override
   State<_Teams> createState() => _TeamsState();
@@ -209,27 +310,263 @@ class _Teams extends StatefulWidget {
 class _TeamsState extends State<_Teams> {
   int selectedIndex = 0;
 
+  bool get _isAwaySelected => selectedIndex == 0;
+
+  String get _selectedTeamName =>
+      _isAwaySelected ? _safeText(widget.details.awayName) : _safeText(widget.details.homeName);
+
+  String get _opponentTeamName =>
+      _isAwaySelected ? _safeText(widget.details.homeName) : _safeText(widget.details.awayName);
+
+  num? _selectedValue({num? home, num? away}) => _isAwaySelected ? away : home;
+
+  num? _opponentValue({num? home, num? away}) => _isAwaySelected ? home : away;
+
+  int _extractFromMap(Map<String, int> source, List<String> keys) {
+    for (final key in keys) {
+      if (source.containsKey(key)) return source[key] ?? 0;
+    }
+    return 0;
+  }
+
+  double _percent(int value, int total) {
+    if (total <= 0) return 0;
+    return ((value / total) * 100).clamp(0, 100);
+  }
+
+  String _formatKeyLabel(String key) {
+    if (key.isEmpty) return '--';
+    final label = key.replaceAll('_', ' ');
+    return '${label[0].toUpperCase()}${label.substring(1)}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final details = widget.details;
+
     final List<Map<String, dynamic>> tabs = [
-      {'icon': Assets.imagesFc, 'title': 'FC Barcelona'},
-      {'icon': Assets.imagesRd, 'title': 'Real Madrid'},
+      {
+        'icon': widget.details.awayImage,
+        'title': _safeText(widget.details.awayName),
+        'secondary': widget.details.awayUrl,
+      },
+      {
+        'icon': widget.details.homeImage,
+        'title': _safeText(widget.details.homeName),
+        'secondary': widget.details.homeUrl,
+      },
     ];
-    final List<Map<String, String>> milestones = [
-      {'type': 'Win %', 'overall': '80%', 'home': '67%', 'away': '100%'},
-      {'type': 'AVG', 'overall': '3.90', 'home': '4.33', 'away': '3.25'},
-      {'type': 'Scored', 'overall': '3.10', 'home': '3.17', 'away': '3.00'},
-      {'type': 'Conceded', 'overall': '0.80', 'home': '1.17', 'away': '0.25'},
-      {'type': 'BTTS', 'overall': '40%', 'home': '50%', 'away': '0%'},
-      {'type': 'CS', 'overall': '60%', 'home': '0%', 'away': '1.75'},
-      {'type': 'xGA', 'overall': '0.95', 'home': '0.90', 'away': '1.11'},
+    final Map<String, int> previousResults = details.h2H?.previousMatchesResults ?? {};
+    final Map<String, int> bettingStats = details.h2H?.bettingStats ?? {};
+    final int totalMatches = previousResults.values.fold<int>(0, (a, b) => a + (b));
+    final int selectedWins = _extractFromMap(
+      previousResults,
+      _isAwaySelected
+          ? ['team_b_wins', 'away_wins', 'team_b', 'away']
+          : ['team_a_wins', 'home_wins', 'team_a', 'home'],
+    );
+    final int opponentWins = _extractFromMap(
+      previousResults,
+      _isAwaySelected
+          ? ['team_a_wins', 'home_wins', 'team_a', 'home']
+          : ['team_b_wins', 'away_wins', 'team_b', 'away'],
+    );
+    final int draws = _extractFromMap(previousResults, ['draws', 'draw']);
+
+    final double winPercent = _percent(selectedWins, totalMatches);
+    final double drawPercent = _percent(draws, totalMatches);
+    final double lossPercent = _percent(opponentWins, totalMatches);
+
+    final List<Map<String, String>> statsRows = [
+      {
+        'type': 'Goals',
+        'total': _formatNum(details.totalGoalCount),
+        'team': _formatNum(_selectedValue(home: details.homeGoalCount, away: details.awayGoalCount)),
+        'opponent': _formatNum(_opponentValue(home: details.homeGoalCount, away: details.awayGoalCount)),
+      },
+      {
+        'type': 'Possession %',
+        'total': _formatPercent(details.avgPotential),
+        'team': _formatNum(_selectedValue(home: details.teamAPossession, away: details.teamBPossession)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAPossession, away: details.teamBPossession)),
+      },
+      {
+        'type': 'Shots',
+        'total': _formatNum(_safeSum(details.teamAShots, details.teamBShots)),
+        'team': _formatNum(_selectedValue(home: details.teamAShots, away: details.teamBShots)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAShots, away: details.teamBShots)),
+      },
+      {
+        'type': 'On Target',
+        'total': _formatNum(_safeSum(details.teamAShotsOnTarget, details.teamBShotsOnTarget)),
+        'team': _formatNum(_selectedValue(home: details.teamAShotsOnTarget, away: details.teamBShotsOnTarget)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAShotsOnTarget, away: details.teamBShotsOnTarget)),
+      },
+      {
+        'type': 'Corners',
+        'total': _formatNum(details.totalCornerCount),
+        'team': _formatNum(_selectedValue(home: details.teamACorners, away: details.teamBCorners)),
+        'opponent': _formatNum(_opponentValue(home: details.teamACorners, away: details.teamBCorners)),
+      },
+      {
+        'type': 'Yellow Cards',
+        'total': _formatNum(_safeSum(details.teamAYellowCards, details.teamBYellowCards)),
+        'team': _formatNum(_selectedValue(home: details.teamAYellowCards, away: details.teamBYellowCards)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAYellowCards, away: details.teamBYellowCards)),
+      },
+      {
+        'type': 'Red Cards',
+        'total': _formatNum(_safeSum(details.teamARedCards, details.teamBRedCards)),
+        'team': _formatNum(_selectedValue(home: details.teamARedCards, away: details.teamBRedCards)),
+        'opponent': _formatNum(_opponentValue(home: details.teamARedCards, away: details.teamBRedCards)),
+      },
+      {
+        'type': 'xG',
+        'total': _formatNum(details.totalXg),
+        'team': _formatNum(_selectedValue(home: details.teamAXg, away: details.teamBXg)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAXg, away: details.teamBXg)),
+      },
+      {
+        'type': 'Penalties Won',
+        'total': _formatNum(_safeSum(details.teamAPenaltiesWon, details.teamBPenaltiesWon)),
+        'team': _formatNum(_selectedValue(home: details.teamAPenaltiesWon, away: details.teamBPenaltiesWon)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAPenaltiesWon, away: details.teamBPenaltiesWon)),
+      },
+      {
+        'type': 'Dangerous Attacks',
+        'total': _formatNum(_safeSum(details.teamADangerousAttacks, details.teamBDangerousAttacks)),
+        'team': _formatNum(_selectedValue(home: details.teamADangerousAttacks, away: details.teamBDangerousAttacks)),
+        'opponent': _formatNum(_opponentValue(home: details.teamADangerousAttacks, away: details.teamBDangerousAttacks)),
+      },
+      {
+        'type': 'Attacks',
+        'total': _formatNum(_safeSum(details.teamAAttacks, details.teamBAttacks)),
+        'team': _formatNum(_selectedValue(home: details.teamAAttacks, away: details.teamBAttacks)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAAttacks, away: details.teamBAttacks)),
+      },
     ];
 
-    final List<Map<String, dynamic>> customMilestones = [
-      {'type': 'Overall', 'value': '2.60', 'widget': null},
-      {'type': 'Home', 'value': '2.60', 'widget': null},
-      {'type': 'Away', 'value': '2.60', 'widget': null},
+    final List<Map<String, String>> teamFormRows = [
+      {
+        'type': 'PPG',
+        'team': _formatNum(_selectedValue(home: details.homePpg, away: details.awayPpg)),
+        'opponent': _formatNum(_opponentValue(home: details.homePpg, away: details.awayPpg)),
+      },
+      {
+        'type': 'Pre-match PPG',
+        'team': _formatNum(_selectedValue(home: details.preMatchHomePpg, away: details.preMatchAwayPpg)),
+        'opponent': _formatNum(_opponentValue(home: details.preMatchHomePpg, away: details.preMatchAwayPpg)),
+      },
+      {
+        'type': 'xG (pre-match)',
+        'team': _formatNum(_selectedValue(home: details.teamAXgPrematch, away: details.teamBXgPrematch)),
+        'opponent': _formatNum(_opponentValue(home: details.teamAXgPrematch, away: details.teamBXgPrematch)),
+      },
     ];
+    Widget buildKeyValue(String label, String value) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: MyText(
+                text: _formatKeyLabel(label),
+                size: 12,
+                weight: FontWeight.w500,
+                color: kQuaternaryColor,
+              ),
+            ),
+            MyText(
+              text: value,
+              size: 12,
+              weight: FontWeight.w700,
+              color: kTertiaryColor,
+            ),
+          ],
+        ),
+      );
+    }
+
+    List<Map<String, dynamic>> _topPredictionStats(Data details) {
+      return [
+        {
+          'label': 'over 1.5',
+          'value': details.o15Potential,
+          'desc': 'Match potential',
+          'color': kGreenColor2,
+          'isPercent': true,
+        },
+        {
+          'label': 'over 2.5',
+          'value': details.o25Potential,
+          'desc': 'Match potential',
+          'color': kYellowColor2,
+          'isPercent': true,
+        },
+        {
+          'label': 'BTTS',
+          'value': details.bttsPotential,
+          'desc': 'Both teams to score',
+          'color': kRedColor,
+          'isPercent': true,
+        },
+        {
+          'label': 'Goals/Match',
+          'value': details.totalGoalCount,
+          'desc': 'Total goals',
+          'color': kYellowColor2,
+          'isPercent': false,
+        },
+      ];
+    }
+
+    List<Map<String, dynamic>> _bottomPredictionStats(Data details) {
+      return [
+        {
+          'label': 'over 0.5',
+          'value': details.o05Potential,
+          'desc': 'Match potential',
+          'color': kGreenColor2,
+          'isPercent': true,
+        },
+        {
+          'label': 'HT over 1.5',
+          'value': details.o15HtPotential,
+          'desc': 'First half potential',
+          'color': kYellowColor2,
+          'isPercent': true,
+        },
+        {
+          'label': 'over 2.5',
+          'value': details.o25Potential,
+          'desc': 'Match potential',
+          'color': kRedColor,
+          'isPercent': true,
+        },
+        {
+          'label': 'BTTS 1H',
+          'value': details.bttsFhgPotential,
+          'desc': 'Both teams first half',
+          'color': kYellowColor2,
+          'isPercent': true,
+        },
+        {
+          'label': 'Corners',
+          'value': details.cornersPotential,
+          'desc': 'Corner potential',
+          'color': kRedColor,
+          'isPercent': true,
+        },
+        {
+          'label': 'Cards',
+          'value': details.cardsPotential,
+          'desc': 'Card potential',
+          'color': kYellowColor2,
+          'isPercent': true,
+        },
+      ];
+    }
     return ListView(
       shrinkWrap: true,
       padding: AppSizes.DEFAULT,
@@ -265,7 +602,15 @@ class _TeamsState extends State<_Teams> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 6,
                     children: [
-                      Image.asset(tabs[index]['icon'], height: 24),
+                      CommonImageView(
+                        url: _resolveImageUrl(
+                          tabs[index]['icon'] ?? '',
+                          fallback: tabs[index]['secondary'],
+                        ),
+                        height: 24,
+                        width: 24,
+                        radius: 12,
+                      ),
                       Text(
                         tabs[index]['title'],
                         style: TextStyle(
@@ -294,9 +639,9 @@ class _TeamsState extends State<_Teams> {
                 iconSize: 20,
                 textSize: 14,
                 havePrefix: false,
-                hint: 'Home',
-                items: ['Home'],
-                selectedValue: 'Home',
+                hint: _selectedTeamName,
+                items: [_selectedTeamName],
+                selectedValue: _selectedTeamName,
                 onChanged: (value) {},
                 prefixIcon: '',
               ),
@@ -308,9 +653,9 @@ class _TeamsState extends State<_Teams> {
                 iconSize: 20,
                 textSize: 14,
                 havePrefix: false,
-                hint: 'La Liga',
-                items: ['La Liga'],
-                selectedValue: 'La Liga',
+                hint: _safeText(details.season),
+                items: [_safeText(details.season)],
+                selectedValue: _safeText(details.season),
                 onChanged: (value) {},
                 prefixIcon: '',
               ),
@@ -335,146 +680,155 @@ class _TeamsState extends State<_Teams> {
                     size: 16,
                     weight: FontWeight.w500,
                   ),
-                  MyText(text: ' 6', size: 16, weight: FontWeight.w700),
+                  MyText(
+                    text: ' $totalMatches',
+                    size: 16,
+                    weight: FontWeight.w700,
+                  ),
                 ],
               ),
               SizedBox(height: 14),
-
-              SfLinearGauge(
-                minimum: 0,
-                maximum: 100,
-                showLabels: false,
-                showTicks: false,
-                animateAxis: true,
-                showAxisTrack: false,
-                axisTrackStyle: LinearAxisTrackStyle(
-                  thickness: 8,
-                  edgeStyle: LinearEdgeStyle.bothCurve,
-                  color: kTertiaryColor.withValues(alpha: 0.08),
+              if (totalMatches == 0) ...[
+                MyText(
+                  text: 'No head-to-head data for these teams yet.',
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: kQuaternaryColor,
                 ),
-
-                ranges: [
-                  LinearGaugeRange(
-                    startWidth: 32,
-                    endWidth: 32,
-                    startValue: 0,
-                    endValue: 50,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: MyText(
-                        text: '50%',
-                        size: 14,
-                        color: kGreenColor2,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                    color: kGreenColor2.withValues(alpha: 0.25),
-                    edgeStyle: LinearEdgeStyle.startCurve,
+              ] else ...[
+                SfLinearGauge(
+                  minimum: 0,
+                  maximum: 100,
+                  showLabels: false,
+                  showTicks: false,
+                  animateAxis: true,
+                  showAxisTrack: false,
+                  axisTrackStyle: LinearAxisTrackStyle(
+                    thickness: 8,
+                    edgeStyle: LinearEdgeStyle.bothCurve,
+                    color: kTertiaryColor.withValues(alpha: 0.08),
                   ),
-                  LinearGaugeRange(
-                    startWidth: 32,
-                    endWidth: 32,
-                    startValue: 50,
-                    endValue: 83,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: MyText(
-                        text: '33%',
-                        size: 14,
-                        color: kYellowColor2,
-                        weight: FontWeight.w700,
+                  ranges: [
+                    LinearGaugeRange(
+                      startWidth: 32,
+                      endWidth: 32,
+                      startValue: 0,
+                      endValue: winPercent,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: MyText(
+                          text: '${winPercent.toStringAsFixed(0)}%',
+                          size: 14,
+                          color: kGreenColor2,
+                          weight: FontWeight.w700,
+                        ),
                       ),
+                      color: kGreenColor2.withValues(alpha: 0.25),
+                      edgeStyle: LinearEdgeStyle.startCurve,
                     ),
-                    color: kYellowColor2.withValues(alpha: 0.25),
-                    edgeStyle: LinearEdgeStyle.bothFlat,
-                  ),
-                  LinearGaugeRange(
-                    startWidth: 32,
-                    endWidth: 32,
-                    startValue: 83,
-                    endValue: 100,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: MyText(
-                        text: '17%',
-                        size: 14,
-                        color: kRedColor2,
-                        weight: FontWeight.w700,
+                    LinearGaugeRange(
+                      startWidth: 32,
+                      endWidth: 32,
+                      startValue: winPercent,
+                      endValue: winPercent + drawPercent,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: MyText(
+                          text: '${drawPercent.toStringAsFixed(0)}%',
+                          size: 14,
+                          color: kYellowColor2,
+                          weight: FontWeight.w700,
+                        ),
                       ),
+                      color: kYellowColor2.withValues(alpha: 0.25),
+                      edgeStyle: LinearEdgeStyle.bothFlat,
                     ),
-                    color: kRedColor2.withValues(alpha: 0.25),
-                    edgeStyle: LinearEdgeStyle.endCurve,
-                  ),
-                ],
-              ),
-              SfLinearGauge(
-                minimum: 0,
-                maximum: 100,
-                showLabels: false,
-                showTicks: false,
-                animateAxis: true,
-                showAxisTrack: false,
-                axisTrackStyle: LinearAxisTrackStyle(
-                  thickness: 8,
-                  edgeStyle: LinearEdgeStyle.bothCurve,
-                  color: kTertiaryColor.withValues(alpha: 0.08),
+                    LinearGaugeRange(
+                      startWidth: 32,
+                      endWidth: 32,
+                      startValue: winPercent + drawPercent,
+                      endValue: (winPercent + drawPercent + lossPercent).clamp(0, 100),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: MyText(
+                          text: '${lossPercent.toStringAsFixed(0)}%',
+                          size: 14,
+                          color: kRedColor2,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      color: kRedColor2.withValues(alpha: 0.25),
+                      edgeStyle: LinearEdgeStyle.endCurve,
+                    ),
+                  ],
                 ),
-
-                ranges: [
-                  LinearGaugeRange(
-                    startWidth: 20,
-                    endWidth: 20,
-                    startValue: 0,
-                    endValue: 50,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: MyText(
-                        text: '3 Wins',
-                        size: 12,
-                        color: kQuaternaryColor,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                    color: Colors.transparent,
-                    edgeStyle: LinearEdgeStyle.startCurve,
+                SfLinearGauge(
+                  minimum: 0,
+                  maximum: 100,
+                  showLabels: false,
+                  showTicks: false,
+                  animateAxis: true,
+                  showAxisTrack: false,
+                  axisTrackStyle: LinearAxisTrackStyle(
+                    thickness: 8,
+                    edgeStyle: LinearEdgeStyle.bothCurve,
+                    color: kTertiaryColor.withValues(alpha: 0.08),
                   ),
-                  LinearGaugeRange(
-                    startWidth: 20,
-                    endWidth: 20,
-                    startValue: 50,
-                    endValue: 83,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: MyText(
-                        text: '2 Draws',
-                        size: 12,
-                        color: kQuaternaryColor,
-                        weight: FontWeight.w700,
+                  ranges: [
+                    LinearGaugeRange(
+                      startWidth: 20,
+                      endWidth: 20,
+                      startValue: 0,
+                      endValue: winPercent,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: MyText(
+                          text: '$selectedWins Wins',
+                          size: 12,
+                          color: kQuaternaryColor,
+                          weight: FontWeight.w700,
+                        ),
                       ),
+                      color: Colors.transparent,
+                      edgeStyle: LinearEdgeStyle.startCurve,
                     ),
-                    color: Colors.transparent,
-                    edgeStyle: LinearEdgeStyle.bothFlat,
-                  ),
-                  LinearGaugeRange(
-                    startWidth: 20,
-                    endWidth: 20,
-                    startValue: 83,
-                    endValue: 100,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: MyText(
-                        text: '1 Wins',
-                        size: 12,
-                        color: kQuaternaryColor,
-                        weight: FontWeight.w700,
+                    LinearGaugeRange(
+                      startWidth: 20,
+                      endWidth: 20,
+                      startValue: winPercent,
+                      endValue: winPercent + drawPercent,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: MyText(
+                          text: '$draws Draws',
+                          size: 12,
+                          color: kQuaternaryColor,
+                          weight: FontWeight.w700,
+                        ),
                       ),
+                      color: Colors.transparent,
+                      edgeStyle: LinearEdgeStyle.bothFlat,
                     ),
-                    color: Colors.transparent,
-                    edgeStyle: LinearEdgeStyle.endCurve,
-                  ),
-                ],
-              ),
-
+                    LinearGaugeRange(
+                      startWidth: 20,
+                      endWidth: 20,
+                      startValue: winPercent + drawPercent,
+                      endValue: (winPercent + drawPercent + lossPercent).clamp(0, 100),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: MyText(
+                          text: '$opponentWins Losses',
+                          size: 12,
+                          color: kQuaternaryColor,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      color: Colors.transparent,
+                      edgeStyle: LinearEdgeStyle.endCurve,
+                    ),
+                  ],
+                ),
+              ],
               SizedBox(height: 20),
               Row(
                 children: [
@@ -482,9 +836,17 @@ class _TeamsState extends State<_Teams> {
                     child: Row(
                       spacing: 5,
                       children: [
-                        Image.asset(Assets.imagesFc, height: 20),
+                        CommonImageView(
+                          url: _resolveImageUrl(
+                            tabs[selectedIndex]['icon'] ?? '',
+                            fallback: tabs[selectedIndex]['secondary'],
+                          ),
+                          height: 20,
+                          width: 20,
+                          radius: 10,
+                        ),
                         MyText(
-                          text: 'FC Barcelona',
+                          text: _selectedTeamName,
                           size: 12,
                           weight: FontWeight.w500,
                         ),
@@ -496,12 +858,20 @@ class _TeamsState extends State<_Teams> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       spacing: 5,
                       children: [
-                        Image.asset(Assets.imagesRd, height: 20),
+                        CommonImageView(
+                          url: _resolveImageUrl(
+                            tabs[1 - selectedIndex]['icon'] ?? '',
+                            fallback: tabs[1 - selectedIndex]['secondary'],
+                          ),
+                          height: 20,
+                          width: 20,
+                          radius: 10,
+                        ),
                         RichText(
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Real Madrid ',
+                                text: _opponentTeamName,
                                 style: TextStyle(
                                   fontFamily: AppFonts.Satoshi,
                                   fontSize: 12,
@@ -510,7 +880,9 @@ class _TeamsState extends State<_Teams> {
                                 ),
                               ),
                               TextSpan(
-                                text: '(25%)',
+                                text: totalMatches == 0
+                                    ? ''
+                                    : ' (${lossPercent.toStringAsFixed(0)}%)',
                                 style: TextStyle(
                                   fontFamily: AppFonts.Satoshi,
                                   fontSize: 12,
@@ -571,27 +943,44 @@ class _TeamsState extends State<_Teams> {
                 color: kBorderColor,
                 margin: EdgeInsets.symmetric(vertical: 12),
               ),
-              ListView.separated(
-                itemCount: 3,
-                shrinkWrap: true,
-                padding: AppSizes.ZERO,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return _MatchesTile(
-                    isActive: true,
-                    onTap: () {},
-                    time: '09:45 am',
-                    team1: 'FC Barcelona',
-                    team2: 'Real Madrid',
-                    team1Logo: Assets.imagesLy,
-                    team2Logo: Assets.imagesLy,
-                    subtitle: index.isEven ? '89’' : 'FT',
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 16);
-                },
-              ),
+              if (previousResults.isEmpty && bettingStats.isEmpty)
+                MyText(
+                  text: 'No H2H stats available for these teams yet.',
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: kQuaternaryColor,
+                ),
+              if (previousResults.isNotEmpty) ...[
+                MyText(
+                  text: 'Previous match results',
+                  size: 12,
+                  weight: FontWeight.w700,
+                ),
+                ...previousResults.entries
+                    .map((e) => buildKeyValue(e.key, e.value.toString()))
+                    .toList(),
+              ],
+              if (bettingStats.isNotEmpty) ...[
+                SizedBox(height: 8),
+                MyText(
+                  text: 'Betting stats',
+                  size: 12,
+                  weight: FontWeight.w700,
+                ),
+                ...bettingStats.entries
+                    .map((e) => buildKeyValue(e.key, e.value.toString()))
+                    .toList(),
+              ],
+              if ((details.h2H?.previousMatchesIds?.isNotEmpty ?? false)) ...[
+                SizedBox(height: 8),
+                MyText(
+                  text:
+                      'Previous match IDs: ${details.h2H!.previousMatchesIds!.length}',
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: kQuaternaryColor,
+                ),
+              ],
             ],
           ),
         ),
@@ -607,7 +996,7 @@ class _TeamsState extends State<_Teams> {
               ),
             ),
             MyText(
-              text: 'Barcelona / Real Madrid',
+              text: '$_selectedTeamName / $_opponentTeamName',
               size: 14,
               color: kQuaternaryColor,
               weight: FontWeight.w500,
@@ -625,36 +1014,12 @@ class _TeamsState extends State<_Teams> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          itemCount: 4,
+          itemCount: _topPredictionStats(details).length,
           itemBuilder: (context, index) {
-            final List<Map<String, dynamic>> predictionStats = [
-              {
-                'percentage': '50%',
-                'label': 'over 1.5',
-                'desc': 'League average: 59%',
-                'color': kGreenColor2,
-              },
-              {
-                'percentage': '33%',
-                'label': 'over 2.5',
-                'desc': 'League average: 59%',
-                'color': kRedColor,
-              },
-              {
-                'percentage': '17%',
-                'label': 'BTTS',
-                'desc': 'League average: 59%',
-                'color': kYellowColor2,
-              },
-              {
-                'percentage': '50%',
-                'label': 'Goals/Match',
-                'desc': 'League average: 59%',
-                'color': kYellowColor2,
-              },
-            ];
-
-            final stat = predictionStats[index];
+            final stat = _topPredictionStats(details)[index];
+            final String valueText = stat['isPercent'] == true
+                ? _formatPercent(stat['value'] as num?)
+                : _formatNum(stat['value'] as num?);
             return Stack(
               clipBehavior: Clip.none,
               children: [
@@ -676,12 +1041,12 @@ class _TeamsState extends State<_Teams> {
                           style: TextStyle(
                             fontFamily: AppFonts.Satoshi,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: kTertiaryColor,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: stat['percentage'],
+                          fontWeight: FontWeight.w500,
+                          color: kTertiaryColor,
+                        ),
+                        children: [
+                          TextSpan(
+                        text: _safeText(valueText),
                               style: TextStyle(fontWeight: FontWeight.w700),
                             ),
                             TextSpan(text: ' ${stat['label']}'),
@@ -690,7 +1055,7 @@ class _TeamsState extends State<_Teams> {
                       ),
                       MyText(
                         paddingTop: 4,
-                        text: stat['desc']!,
+                        text: _safeText(stat['desc'] as String?),
                         size: 12,
                         maxLines: 1,
                         textOverflow: TextOverflow.ellipsis,
@@ -709,7 +1074,7 @@ class _TeamsState extends State<_Teams> {
                       height: 38,
                       width: 4,
                       decoration: BoxDecoration(
-                        color: stat['color'],
+                        color: stat['color'] as Color? ?? kSecondaryColor,
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
@@ -741,144 +1106,75 @@ class _TeamsState extends State<_Teams> {
             ),
             dataRowMinHeight: 40,
             dataRowMaxHeight: 40,
-            columns: List.generate(
-              3,
-              (index) => DataColumn(
+            columns: [
+              DataColumn(
                 headingRowAlignment: MainAxisAlignment.center,
-                columnWidth: FixedColumnWidth(
-                  index == 0
-                      ? 60
-                      : index == 1
-                      ? 120
-                      : 60,
-                ),
                 label: MyText(
-                  text: ['1', '1', '1'][index],
+                  text: 'Metric',
                   size: 12,
                   color: kQuaternaryColor,
                   weight: FontWeight.w500,
                 ),
               ),
-            ),
-            rows: List.generate(customMilestones.length, (rowIndex) {
-              final m = customMilestones[rowIndex];
+              DataColumn(
+                headingRowAlignment: MainAxisAlignment.center,
+                label: MyText(
+                  text: _selectedTeamName,
+                  size: 12,
+                  color: kSecondaryColor,
+                  weight: FontWeight.w500,
+                ),
+              ),
+              DataColumn(
+                headingRowAlignment: MainAxisAlignment.center,
+                label: MyText(
+                  text: _opponentTeamName,
+                  size: 12,
+                  color: kQuaternaryColor,
+                  weight: FontWeight.w500,
+                ),
+              ),
+            ],
+            rows: teamFormRows.map((m) {
               return DataRow(
-                cells: List.generate(3, (cellIndex) {
-                  if (cellIndex == 0) {
-                    return DataCell(
-                      Align(
-                        alignment: Alignment.center,
-                        child: MyText(
-                          text: m['type']!,
-                          size: 12,
-                          weight: FontWeight.w500,
-                          textAlign: TextAlign.center,
-                          color: kQuaternaryColor,
-                        ),
+                cells: [
+                  DataCell(
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MyText(
+                        text: m['type']!,
+                        size: 12,
+                        weight: FontWeight.w500,
+                        color: kQuaternaryColor,
                       ),
-                    );
-                  } else if (cellIndex == 1) {
-                    return DataCell(
-                      Align(
-                        alignment: Alignment.center,
-                        child: rowIndex == 0
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 2,
-                                children: List.generate(5, (index) {
-                                  return Container(
-                                    height: 18,
-                                    width: 18,
-                                    decoration: BoxDecoration(
-                                      color: kGreenColor2,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                      child: MyText(
-                                        text: 'W',
-                                        size: 10,
-                                        weight: FontWeight.w500,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              )
-                            : rowIndex == 1
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 2,
-                                children: List.generate(4, (index) {
-                                  return Container(
-                                    height: 18,
-                                    width: 18,
-                                    decoration: BoxDecoration(
-                                      color: index > 1
-                                          ? kYellowColor2
-                                          : kGreenColor2,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                      child: MyText(
-                                        text: index > 1 ? 'D' : 'W',
-                                        size: 10,
-                                        weight: FontWeight.w500,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 2,
-                                children: List.generate(3, (index) {
-                                  return Container(
-                                    height: 18,
-                                    width: 18,
-                                    decoration: BoxDecoration(
-                                      color: kGreenColor2,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                      child: MyText(
-                                        text: 'W',
-                                        size: 10,
-                                        weight: FontWeight.w500,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
+                    ),
+                  ),
+                  DataCell(
+                    Align(
+                      alignment: Alignment.center,
+                      child: MyText(
+                        text: m['team']!,
+                        size: 12,
+                        weight: FontWeight.w600,
+                        textAlign: TextAlign.center,
                       ),
-                    );
-                  } else {
-                    return DataCell(
-                      Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: kGreenColor2,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: MyText(
-                            text: m['value']!,
-                            size: 10,
-                            weight: FontWeight.w500,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                    ),
+                  ),
+                  DataCell(
+                    Align(
+                      alignment: Alignment.center,
+                      child: MyText(
+                        text: m['opponent']!,
+                        size: 12,
+                        weight: FontWeight.w600,
+                        textAlign: TextAlign.center,
+                        color: kQuaternaryColor,
                       ),
-                    );
-                  }
-                }),
+                    ),
+                  ),
+                ],
               );
-            }),
+            }).toList(),
           ),
         ),
 
@@ -894,48 +1190,12 @@ class _TeamsState extends State<_Teams> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          itemCount: 6,
+          itemCount: _bottomPredictionStats(details).length,
           itemBuilder: (context, index) {
-            final List<Map<String, dynamic>> predictionStats = [
-              {
-                'percentage': '50%',
-                'label': 'over 1.5',
-                'desc': '3 / 6 matches',
-                'color': kRedColor,
-              },
-              {
-                'percentage': '33%',
-                'label': 'over 2.5',
-                'desc': '2 / 6 matches',
-                'color': kYellowColor2,
-              },
-              {
-                'percentage': '17%',
-                'label': 'over 1.5',
-                'desc': '1 / 6 matches',
-                'color': kGreenColor2,
-              },
-              {
-                'percentage': '50%',
-                'label': 'BTTS',
-                'desc': '3 / 6 matches',
-                'color': kRedColor,
-              },
-              {
-                'percentage': '67%',
-                'label': 'clean sheets',
-                'desc': 'Bristol U21',
-                'color': kRedColor,
-              },
-              {
-                'percentage': '50%',
-                'label': 'clean sheets',
-                'desc': 'Wolves U21',
-                'color': kYellowColor2,
-              },
-            ];
-
-            final stat = predictionStats[index];
+            final stat = _bottomPredictionStats(details)[index];
+            final String valueText = stat['isPercent'] == true
+                ? _formatPercent(stat['value'] as num?)
+                : _formatNum(stat['value'] as num?);
             return Stack(
               clipBehavior: Clip.none,
               children: [
@@ -960,18 +1220,18 @@ class _TeamsState extends State<_Teams> {
                             fontWeight: FontWeight.w500,
                             color: kTertiaryColor,
                           ),
-                          children: [
-                            TextSpan(
-                              text: stat['percentage'],
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                            TextSpan(text: ' ${stat['label']}'),
-                          ],
+                      children: [
+                        TextSpan(
+                        text: _safeText(valueText),
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
-                      ),
-                      MyText(
-                        paddingTop: 4,
-                        text: stat['desc']!,
+                        TextSpan(text: ' ${stat['label']}'),
+                      ],
+                    ),
+                  ),
+                  MyText(
+                    paddingTop: 4,
+                    text: _safeText(stat['desc'] as String?),
                         size: 12,
                         maxLines: 1,
                         textOverflow: TextOverflow.ellipsis,
@@ -990,7 +1250,7 @@ class _TeamsState extends State<_Teams> {
                       height: 38,
                       width: 4,
                       decoration: BoxDecoration(
-                        color: stat['color'],
+                        color: stat['color'] as Color? ?? kSecondaryColor,
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
@@ -1023,7 +1283,7 @@ class _TeamsState extends State<_Teams> {
 
             dataRowMinHeight: 40,
             dataRowMaxHeight: 40,
-            columns: ['Stats', 'Overall', 'Home', 'Away']
+            columns: ['Stat', 'Total', _selectedTeamName, _opponentTeamName]
                 .map(
                   (title) => DataColumn(
                     headingRowAlignment: MainAxisAlignment.center,
@@ -1032,7 +1292,7 @@ class _TeamsState extends State<_Teams> {
                       text: title,
                       size: 12,
                       textAlign: TextAlign.center,
-                      color: title == 'Overall'
+                      color: title == 'Total'
                           ? kSecondaryColor
                           : kQuaternaryColor,
                       weight: FontWeight.w500,
@@ -1040,7 +1300,7 @@ class _TeamsState extends State<_Teams> {
                   ),
                 )
                 .toList(),
-            rows: milestones.map((m) {
+            rows: statsRows.map((m) {
               return DataRow(
                 cells: [
                   DataCell(
@@ -1059,7 +1319,7 @@ class _TeamsState extends State<_Teams> {
                     Align(
                       alignment: Alignment.center,
                       child: MyText(
-                        text: m['overall']!,
+                        text: m['total']!,
                         size: 12,
                         weight: FontWeight.w500,
                         textAlign: TextAlign.center,
@@ -1071,7 +1331,7 @@ class _TeamsState extends State<_Teams> {
                     Align(
                       alignment: Alignment.center,
                       child: MyText(
-                        text: m['home']!,
+                        text: m['team']!,
                         size: 12,
                         weight: FontWeight.w500,
                         textAlign: TextAlign.center,
@@ -1083,7 +1343,7 @@ class _TeamsState extends State<_Teams> {
                     Align(
                       alignment: Alignment.center,
                       child: MyText(
-                        text: m['away']!,
+                        text: m['opponent']!,
                         size: 12,
                         weight: FontWeight.w500,
                         textAlign: TextAlign.center,

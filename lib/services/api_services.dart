@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 
 import '../model/football_scores_model.dart';
 
+
+  final String baseurlForImages = "https://api.football-data-api.com/?key=2721f00df0f151eb69007bb25680d802914a91c582599887e48bc139e37ffcc6";
+
 class ApiService {
   // Base URL for all API calls
   // static const String _baseUrl = "http://www.goalserve.com/getfeed/f21daf115aeb4dbc39ed08ddad4f0258";
@@ -53,7 +56,6 @@ class ApiService {
     } else {
       return resp.data;
     }
-
     } catch (e) {
       throw ("Error $e");
     }

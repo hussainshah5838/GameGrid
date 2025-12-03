@@ -1,13 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:game_grid/config/helper/logger.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/research_controller.dart';
 import 'package:game_grid/main.dart';
-import 'package:game_grid/model/todays_matches_model.dart';
-import 'package:game_grid/services/matches_by_category_service.dart';
 import 'package:game_grid/view/screens/profile/profile.dart';
 import 'package:game_grid/view/screens/research/match_details/match_details.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
@@ -16,11 +14,7 @@ import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/favroite_widget.dart';
 import 'package:game_grid/view/widget/match_title_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-
-import '../../../model/football_scores_model.dart';
-import '../../../services/api_services.dart';
+import 'package:get/get.dart';
 
 class Research extends StatefulWidget {
   const Research({super.key});
@@ -30,11 +24,19 @@ class Research extends StatefulWidget {
 }
 
 class _ResearchState extends State<Research> {
-
   @override
   void initState() {
     super.initState();
+    Get.put(ResearchController());
     // ApiServiceForCategory.instance.getMatches(endpoint: "/soccernew/home",);
+  }
+
+  @override
+  void dispose() {
+    if (Get.isRegistered<ResearchController>()) {
+      Get.delete<ResearchController>();
+    }
+    super.dispose();
   }
 
 
@@ -167,6 +169,9 @@ class _Football extends StatefulWidget {
 
 class _FootballState extends State<_Football> {
   int selectedIndex = 3;
+  // Use public host for images; API returns relative paths like "teams/foo.png"
+  static const String _imageBase = 'https://football-data-api.com/';
+  late final ResearchController controller;
   final List<String> tabs = [
     'May 14',
     'May 15',
@@ -177,200 +182,171 @@ class _FootballState extends State<_Football> {
     'May 20',
   ];
 
-  // A Future to hold our network request
-  late Future<TodaysMatchesModel?> _footballDataFuture;
-  final ApiService _apiService = ApiService();
-
   @override
   void initState() {
     super.initState();
-    // Start the API call when the widget is first created
-    // _footballDataFuture = _apiService.fetchFootballScores();
-    _footballDataFuture = _apiService.fetchTodayMatches("todays-matches");
+    controller = Get.find<ResearchController>();
   }
 
   
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<TodaysMatchesModel?>(
-      future: _footballDataFuture,
-      builder: (context, snapshot) {
-        // Case 1: Waiting for data
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        // Case 2: Error occurred
-        if (snapshot.hasError) {
-          print(snapshot.error);
-          return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white),));
-        }
+      if (controller.error.value.isNotEmpty) {
+        return Center(
+          child: Text(
+            'Error: ${controller.error.value}',
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
+      }
 
-        // Case 3: Data has been successfully fetched
-        // if (!snapshot.hasData || snapshot.data != null) {
-        //   return const Center(child: Text('No matches found.'));
-        // }
+      final matches = controller.matches;
 
-        final categories = snapshot.data!;
+      if (matches.isEmpty) {
+        return const Center(child: Text('No matches found.'));
+      }
 
-        prettyLogger(categories);
-
-        return ListView(
-          shrinkWrap: true,
-          padding: AppSizes.ZERO,
-          physics: const BouncingScrollPhysics(),
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              height: 48,
-              decoration: BoxDecoration(
-                color: kFillColor,
-                border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
-              ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: tabs.length,
-                padding: AppSizes.HORIZONTAL,
-                physics: const BouncingScrollPhysics(),
-                shrinkWrap: true,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final isSelected = selectedIndex == index;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedIndex = index;
-                        // NOTE: In a real app, you would re-trigger the API call here
-                        // with a different endpoint based on the selected tab.
-                        // For now, it just changes the UI state.
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      height: Get.height,
-                      decoration: BoxDecoration(
-                        color: isSelected ? kSecondaryColor : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        tabs[index],
-                        style: TextStyle(
-                          fontFamily: AppFonts.Satoshi,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected ? kPrimaryColor : kQuaternaryColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+      return ListView(
+        shrinkWrap: true,
+        padding: AppSizes.ZERO,
+        physics: const BouncingScrollPhysics(),
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            height: 48,
+            decoration: BoxDecoration(
+              color: kFillColor,
+              border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
             ),
-            Padding(
-              padding: AppSizes.DEFAULT,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                
-                  Favorites(
-                    title: 'Favorites',
-                    totalCounter: '2',
-                    child: ListView.separated(
-                      itemCount: 2,
-                      shrinkWrap: true,
-                      padding: AppSizes.ZERO,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return MatchesTile(
-                          isActive: true,
-                          onTap: () {},
-                          time: '09:45 am',
-                          team1: 'FC Barcelona',
-                          team2: 'Real Madrid',
-                          team1Logo: Assets.imagesLy,
-                          team2Logo: Assets.imagesLy,
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(height: 16);
-                      },
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: tabs.length,
+              padding: AppSizes.HORIZONTAL,
+              physics: const BouncingScrollPhysics(),
+              shrinkWrap: true,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final isSelected = selectedIndex == index;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedIndex = index;
+                      // Hook: re-fetch data per tab if needed (date filters, etc.)
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    height: Get.height,
+                    decoration: BoxDecoration(
+                      color: isSelected ? kSecondaryColor : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      tabs[index],
+                      style: TextStyle(
+                        fontFamily: AppFonts.Satoshi,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected ? kPrimaryColor : kQuaternaryColor,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-
-                 
-                  Column( children: categories.data.map((e) => Column(
-                    children:  [
-                      MyText(
-                    paddingTop: 12,
-                    paddingBottom: 8,
-                    text: '${categories.data.length} Matches found',
-                    size: 12,
-                    weight: FontWeight.w500,
-                    color: kQuaternaryColor,
-                  ),
-                  ListView.separated(
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
-                    padding: AppSizes.ZERO,
-                    itemCount: categories.data.length,
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: AppSizes.DEFAULT,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Favorites(
+                  title: 'Favorites',
+                  totalCounter: '2',
+                  child: ListView.separated(
+                    itemCount: 2,
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), // Parent ListView scrolls
-                    itemBuilder: (context, categoryIndex) {
-                      final match = categories.data[categoryIndex];
-                  
-                      final teamAName = match.awayName;          // e.g. "VfL Wolfsburg Women"
-                      final teamBName = match.homeName; 
-                      prettyLogger(teamBName);         // e.g. "Manchester United WFC"
-                      prettyLogger(teamAName);         // e.g. "Manchester United WFC"
-                      // final isLive   = match. ?? false;
-                  
-                      // final category = categories.data[categoryIndex];
-                      // if (category.matches.isEmpty) {
-                      //   return const SizedBox.shrink(); // Don't show categories with no matches
-                      // }
-                      return Country(
-                        countryImage: categories.data[categoryIndex].awayImage,
-                        title: categories.data[categoryIndex].awayName,
-                        totalCounter: categories.data.length.toString(),
-                        child: ListView.separated(
-                          itemCount: categories.data.length,
-                          shrinkWrap: true,
-                          padding: AppSizes.ZERO,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, matchIndex) {
-                            final match = categories.data[matchIndex];
-                            return MatchesTile(
-                              isActive: match.status == "Live", // Example logic
-                              onTap: () => Get.to(()=> MatchDetails(
-                                todaysMatchesModel: categories.data[categoryIndex],
-                              )),
-                              time: match.stadiumName,
-                              team1: match.awayName,
-                              team2: match.homeName,
-                              // API does not provide logos, using placeholders
-                              team1Logo: match.awayUrl,
-                              team2Logo: match.awayUrl,
-                            );
-                          },
-                          separatorBuilder: (context, index) => const SizedBox(height: 16),
-                        ),
+                    padding: AppSizes.ZERO,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return MatchesTile(
+                        isActive: true,
+                        onTap: () {},
+                        time: '09:45 am',
+                        team1: 'FC Barcelona',
+                        team2: 'Real Madrid',
+                        team1Logo: Assets.imagesLy,
+                        team2Logo: Assets.imagesLy,
                       );
                     },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 16);
+                    },
                   ),
-                    ],
-                  )
-                  
-                  ).toList()
-                  
-                  )    
-                ],
-              
-              ),
+                ),
+                MyText(
+                  paddingTop: 12,
+                  paddingBottom: 8,
+                  text: '${matches.length} Matches found',
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: kQuaternaryColor,
+                ),
+                ListView.separated(
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  padding: AppSizes.ZERO,
+                  itemCount: matches.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(), // Parent ListView scrolls
+                  itemBuilder: (context, matchIndex) {
+                    final match = matches[matchIndex];
+
+                    return Country(
+                      countryImage: match.awayImage,
+                      title: match.awayName,
+                      totalCounter: matches.length.toString(),
+                      child: MatchesTile(
+                        isActive: match.status == "Live",
+                        onTap: () => Get.to(
+                          () => MatchDetails(matchId: match.id.toString()),
+                        ),
+                        time: match.stadiumName,
+                        team1: match.awayName,
+                        team2: match.homeName,
+                        // API already returns full image URLs
+                        team1Logo: _resolveImageUrl(
+                          match.awayImage,
+                          fallback: match.awayUrl,
+                        ),
+                        team2Logo: _resolveImageUrl(
+                          match.homeImage,
+                          fallback: match.homeUrl,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        );
-      },
-    );
+          ),
+        ],
+      );
+    });
+  }
+
+  // Ensures images render even when API returns relative paths like "teams/foo.png"
+  String _resolveImageUrl(String url, {String? fallback}) {
+    if (url.isNotEmpty && url.startsWith('http')) return url;
+    if (fallback != null && fallback.startsWith('http')) return fallback;
+    if (url.isEmpty && (fallback == null || fallback.isEmpty)) return '';
+    final trimmed = url.startsWith('/') ? url.substring(1) : url;
+    return '$_imageBase$trimmed';
   }
 }

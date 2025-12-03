@@ -4,500 +4,500 @@
 
 import 'dart:convert';
 
-MatchDetailsModel matchDetailsModelFromJson(String str) => MatchDetailsModel.fromJson(json.decode(str));
+MatchDetailsModel matchDetailsModelFromJson(String? str) => MatchDetailsModel.fromJson(json.decode(str!));
 
-String matchDetailsModelToJson(MatchDetailsModel data) => json.encode(data.toJson());
+String? matchDetailsModelToJson(MatchDetailsModel data) => json.encode(data.toJson());
 
 class MatchDetailsModel {
-    bool success;
-    Pager pager;
-    Metadata metadata;
-    Data data;
-    String message;
+    bool? success;
+    Pager? pager;
+    Metadata? metadata;
+    Data? data;
+    String? message;
 
     MatchDetailsModel({
-        required this.success,
-        required this.pager,
-        required this.metadata,
-        required this.data,
-        required this.message,
+        this.success,
+        this.pager,
+        this.metadata,
+        this.data,
+        this.message,
     });
 
     factory MatchDetailsModel.fromJson(Map<String, dynamic> json) => MatchDetailsModel(
         success: json["success"],
-        pager: Pager.fromJson(json["pager"]),
-        metadata: Metadata.fromJson(json["metadata"]),
-        data: Data.fromJson(json["data"]),
+        pager: _parseMap(json["pager"], (m) => Pager.fromJson(m)),
+        metadata: _parseMap(json["metadata"], (m) => Metadata.fromJson(m)),
+        data: _parseMap(json["data"], (m) => Data.fromJson(m)),
         message: json["message"],
     );
 
     Map<String, dynamic> toJson() => {
         "success": success,
-        "pager": pager.toJson(),
-        "metadata": metadata.toJson(),
-        "data": data.toJson(),
+        "pager": pager?.toJson(),
+        "metadata": metadata?.toJson(),
+        "data": data?.toJson(),
         "message": message,
     };
 }
 
 class Data {
-    int id;
-    int homeId;
-    int awayId;
-    String season;
-    String status;
-    int roundId;
-    int gameWeek;
-    int revisedGameWeek;
-    List<dynamic> homeGoals;
-    List<dynamic> awayGoals;
-    int homeGoalCount;
-    int awayGoalCount;
-    int totalGoalCount;
-    int teamACorners;
-    int teamBCorners;
-    int totalCornerCount;
-    int teamAOffsides;
-    int teamBOffsides;
-    int teamAYellowCards;
-    int teamBYellowCards;
-    int teamARedCards;
-    int teamBRedCards;
-    int teamAShotsOnTarget;
-    int teamBShotsOnTarget;
-    int teamAShotsOffTarget;
-    int teamBShotsOffTarget;
-    int teamAShots;
-    int teamBShots;
-    int teamAFouls;
-    int teamBFouls;
-    int teamAPossession;
-    int teamBPossession;
+    num? id;
+    num? homeId;
+    num? awayId;
+    String? season;
+    String? status;
+    num? roundId;
+    num? gameWeek;
+    num? revisedGameWeek;
+    List<dynamic>? homeGoals;
+    List<dynamic>? awayGoals;
+    num? homeGoalCount;
+    num? awayGoalCount;
+    num? totalGoalCount;
+    num? teamACorners;
+    num? teamBCorners;
+    num? totalCornerCount;
+    num? teamAOffsides;
+    num? teamBOffsides;
+    num? teamAYellowCards;
+    num? teamBYellowCards;
+    num? teamARedCards;
+    num? teamBRedCards;
+    num? teamAShotsOnTarget;
+    num? teamBShotsOnTarget;
+    num? teamAShotsOffTarget;
+    num? teamBShotsOffTarget;
+    num? teamAShots;
+    num? teamBShots;
+    num? teamAFouls;
+    num? teamBFouls;
+    num? teamAPossession;
+    num? teamBPossession;
     dynamic refereeId;
-    int coachAId;
-    int coachBId;
-    String stadiumName;
-    String stadiumLocation;
-    int teamACardsNum;
-    int teamBCardsNum;
-    double oddsFt1;
-    double oddsFtX;
-    double oddsFt2;
-    double oddsFtOver05;
-    double oddsFtOver15;
-    double oddsFtOver25;
-    double oddsFtOver35;
-    double oddsFtOver45;
-    double oddsFtUnder05;
-    double oddsFtUnder15;
-    double oddsFtUnder25;
-    double oddsFtUnder35;
-    double oddsFtUnder45;
-    double oddsBttsYes;
-    double oddsBttsNo;
-    int oddsTeamACsYes;
-    int oddsTeamACsNo;
-    int oddsTeamBCsYes;
-    int oddsTeamBCsNo;
-    double oddsDoublechance1X;
-    double oddsDoublechance12;
-    double oddsDoublechanceX2;
-    double odds1StHalfResult1;
-    double odds1StHalfResultX;
-    double odds1StHalfResult2;
-    double odds2NdHalfResult1;
-    double odds2NdHalfResultX;
-    double odds2NdHalfResult2;
-    double oddsDnb1;
-    int oddsDnb2;
-    double oddsCornersOver75;
-    double oddsCornersOver85;
-    double oddsCornersOver95;
-    double oddsCornersOver105;
-    double oddsCornersOver115;
-    double oddsCornersUnder75;
-    double oddsCornersUnder85;
-    double oddsCornersUnder95;
-    double oddsCornersUnder105;
-    double oddsCornersUnder115;
-    double oddsCorners1;
-    double oddsCornersX;
-    double oddsCorners2;
-    double oddsTeamToScoreFirst1;
-    double oddsTeamToScoreFirstX;
-    int oddsTeamToScoreFirst2;
-    int oddsWinToNil1;
-    double oddsWinToNil2;
-    double odds1StHalfOver05;
-    double odds1StHalfOver15;
-    double odds1StHalfOver25;
-    int odds1StHalfOver35;
-    double odds1StHalfUnder05;
-    double odds1StHalfUnder15;
-    double odds1StHalfUnder25;
-    double odds1StHalfUnder35;
-    double odds2NdHalfOver05;
-    double odds2NdHalfOver15;
-    double odds2NdHalfOver25;
-    int odds2NdHalfOver35;
-    int odds2NdHalfUnder05;
-    double odds2NdHalfUnder15;
-    double odds2NdHalfUnder25;
-    double odds2NdHalfUnder35;
-    int oddsBtts1StHalfYes;
-    int oddsBtts1StHalfNo;
-    int oddsBtts2NdHalfYes;
-    int oddsBtts2NdHalfNo;
-    int overallGoalCount;
-    int htGoalsTeamA;
-    int htGoalsTeamB;
-    int goals2HgTeamA;
-    int goals2HgTeamB;
-    int goalCount2Hg;
-    int htGoalCount;
-    int dateUnix;
-    int winningTeam;
-    int noHomeAway;
-    int bttsPotential;
-    int bttsFhgPotential;
-    int btts2HgPotential;
-    int goalTimingDisabled;
-    int attendance;
-    int cornerTimingsRecorded;
-    int cardTimingsRecorded;
-    int teamAFhCorners;
-    int teamBFhCorners;
-    int teamA2HCorners;
-    int teamB2HCorners;
-    int cornerFhCount;
-    int corner2HCount;
-    int teamAFhCards;
-    int teamBFhCards;
-    int teamA2HCards;
-    int teamB2HCards;
-    int totalFhCards;
-    int total2HCards;
-    int attacksRecorded;
-    int teamADangerousAttacks;
-    int teamBDangerousAttacks;
-    int teamAAttacks;
-    int teamBAttacks;
-    int teamAXg;
-    int teamBXg;
-    int totalXg;
-    int teamAPenaltiesWon;
-    int teamBPenaltiesWon;
-    int teamAPenaltyGoals;
-    int teamBPenaltyGoals;
-    int teamAPenaltyMissed;
-    int teamBPenaltyMissed;
-    int pensRecorded;
-    int goalTimingsRecorded;
-    int teamA010MinGoals;
-    int teamB010MinGoals;
-    int teamACorners010Min;
-    int teamBCorners010Min;
-    int teamACards010Min;
-    int teamBCards010Min;
-    int throwinsRecorded;
-    int teamAThrowins;
-    int teamBThrowins;
-    int freekicksRecorded;
-    int teamAFreekicks;
-    int teamBFreekicks;
-    int goalkicksRecorded;
-    int teamAGoalkicks;
-    int teamBGoalkicks;
-    int o45Potential;
-    int o35Potential;
-    int o25Potential;
-    int o15Potential;
-    int o05Potential;
-    int o15HtPotential;
-    int o05HtPotential;
-    int o052HPotential;
-    int o152HPotential;
-    double cornersPotential;
-    double offsidesPotential;
-    double cardsPotential;
-    double avgPotential;
-    String homeUrl;
-    String homeImage;
-    String homeName;
-    String awayUrl;
-    String awayImage;
-    String awayName;
-    int homePpg;
-    double awayPpg;
-    int preMatchHomePpg;
-    double preMatchAwayPpg;
-    int preMatchTeamAOverallPpg;
-    double preMatchTeamBOverallPpg;
-    int u45Potential;
-    int u35Potential;
-    int u25Potential;
-    int u15Potential;
-    int u05Potential;
-    int cornersO85Potential;
-    int cornersO95Potential;
-    int cornersO105Potential;
-    double teamAXgPrematch;
-    double teamBXgPrematch;
-    double totalXgPrematch;
-    String matchUrl;
-    int competitionId;
-    int matchesCompletedMinimum;
-    Bench lineups;
-    Bench bench;
-    List<dynamic> teamAGoalDetails;
-    List<dynamic> teamBGoalDetails;
+    num? coachAId;
+    num? coachBId;
+    String? stadiumName;
+    String? stadiumLocation;
+    num? teamACardsNum;
+    num? teamBCardsNum;
+    double? oddsFt1;
+    double? oddsFtX;
+    double? oddsFt2;
+    double? oddsFtOver05;
+    double? oddsFtOver15;
+    double? oddsFtOver25;
+    double? oddsFtOver35;
+    double? oddsFtOver45;
+    double? oddsFtUnder05;
+    double? oddsFtUnder15;
+    double? oddsFtUnder25;
+    double? oddsFtUnder35;
+    double? oddsFtUnder45;
+    double? oddsBttsYes;
+    double? oddsBttsNo;
+    num? oddsTeamACsYes;
+    num? oddsTeamACsNo;
+    num? oddsTeamBCsYes;
+    num? oddsTeamBCsNo;
+    double? oddsDoublechance1X;
+    double? oddsDoublechance12;
+    double? oddsDoublechanceX2;
+    double? odds1StHalfResult1;
+    double? odds1StHalfResultX;
+    double? odds1StHalfResult2;
+    double? odds2NdHalfResult1;
+    double? odds2NdHalfResultX;
+    double? odds2NdHalfResult2;
+    double? oddsDnb1;
+    num? oddsDnb2;
+    double? oddsCornersOver75;
+    double? oddsCornersOver85;
+    double? oddsCornersOver95;
+    double? oddsCornersOver105;
+    double? oddsCornersOver115;
+    double? oddsCornersUnder75;
+    double? oddsCornersUnder85;
+    double? oddsCornersUnder95;
+    double? oddsCornersUnder105;
+    double? oddsCornersUnder115;
+    double? oddsCorners1;
+    double? oddsCornersX;
+    double? oddsCorners2;
+    double? oddsTeamToScoreFirst1;
+    double? oddsTeamToScoreFirstX;
+    num? oddsTeamToScoreFirst2;
+    num? oddsWinToNil1;
+    double? oddsWinToNil2;
+    double? odds1StHalfOver05;
+    double? odds1StHalfOver15;
+    double? odds1StHalfOver25;
+    num? odds1StHalfOver35;
+    double? odds1StHalfUnder05;
+    double? odds1StHalfUnder15;
+    double? odds1StHalfUnder25;
+    double? odds1StHalfUnder35;
+    double? odds2NdHalfOver05;
+    double? odds2NdHalfOver15;
+    double? odds2NdHalfOver25;
+    num? odds2NdHalfOver35;
+    num? odds2NdHalfUnder05;
+    double? odds2NdHalfUnder15;
+    double? odds2NdHalfUnder25;
+    num? odds2NdHalfUnder35;
+    num? oddsBtts1StHalfYes;
+    num? oddsBtts1StHalfNo;
+    num? oddsBtts2NdHalfYes;
+    num? oddsBtts2NdHalfNo;
+    num? overallGoalCount;
+    num? htGoalsTeamA;
+    num? htGoalsTeamB;
+    num? goals2HgTeamA;
+    num? goals2HgTeamB;
+    num? goalCount2Hg;
+    num? htGoalCount;
+    num? dateUnix;
+    num? winningTeam;
+    num? noHomeAway;
+    num? bttsPotential;
+    num? bttsFhgPotential;
+    num? btts2HgPotential;
+    num? goalTimingDisabled;
+    num? attendance;
+    num? cornerTimingsRecorded;
+    num? cardTimingsRecorded;
+    num? teamAFhCorners;
+    num? teamBFhCorners;
+    num? teamA2HCorners;
+    num? teamB2HCorners;
+    num? cornerFhCount;
+    num? corner2HCount;
+    num? teamAFhCards;
+    num? teamBFhCards;
+    num? teamA2HCards;
+    num? teamB2HCards;
+    num? totalFhCards;
+    num? total2HCards;
+    num? attacksRecorded;
+    num? teamADangerousAttacks;
+    num? teamBDangerousAttacks;
+    num? teamAAttacks;
+    num? teamBAttacks;
+    num? teamAXg;
+    num? teamBXg;
+    num? totalXg;
+    num? teamAPenaltiesWon;
+    num? teamBPenaltiesWon;
+    num? teamAPenaltyGoals;
+    num? teamBPenaltyGoals;
+    num? teamAPenaltyMissed;
+    num? teamBPenaltyMissed;
+    num? pensRecorded;
+    num? goalTimingsRecorded;
+    num? teamA010MinGoals;
+    num? teamB010MinGoals;
+    num? teamACorners010Min;
+    num? teamBCorners010Min;
+    num? teamACards010Min;
+    num? teamBCards010Min;
+    num? throwinsRecorded;
+    num? teamAThrowins;
+    num? teamBThrowins;
+    num? freekicksRecorded;
+    num? teamAFreekicks;
+    num? teamBFreekicks;
+    num? goalkicksRecorded;
+    num? teamAGoalkicks;
+    num? teamBGoalkicks;
+    num? o45Potential;
+    num? o35Potential;
+    num? o25Potential;
+    num? o15Potential;
+    num? o05Potential;
+    num? o15HtPotential;
+    num? o05HtPotential;
+    num? o052HPotential;
+    num? o152HPotential;
+    double? cornersPotential;
+    double? offsidesPotential;
+    double? cardsPotential;
+    double? avgPotential;
+    String? homeUrl;
+    String? homeImage;
+    String? homeName;
+    String? awayUrl;
+    String? awayImage;
+    String? awayName;
+    num? homePpg;
+    double? awayPpg;
+    num? preMatchHomePpg;
+    double? preMatchAwayPpg;
+    num? preMatchTeamAOverallPpg;
+    double? preMatchTeamBOverallPpg;
+    num? u45Potential;
+    num? u35Potential;
+    num? u25Potential;
+    num? u15Potential;
+    num? u05Potential;
+    num? cornersO85Potential;
+    num? cornersO95Potential;
+    num? cornersO105Potential;
+    num? teamAXgPrematch;
+    num? teamBXgPrematch;
+    num? totalXgPrematch;
+    String? matchUrl;
+    num? competitionId;
+    num? matchesCompletedMinimum;
+    Bench? lineups;
+    Bench? bench;
+    List<dynamic>? teamAGoalDetails;
+    List<dynamic>? teamBGoalDetails;
     dynamic trends;
-    List<dynamic> homeGoalsTimings;
-    List<dynamic> awayGoalsTimings;
-    List<dynamic> teamACardDetails;
-    List<dynamic> teamBCardDetails;
-    H2H h2H;
-    List<String> tvStations;
-    Weather weather;
-    String gptEn;
-    GptInt gptInt;
-    OddsComparison oddsComparison;
+    List<dynamic>? homeGoalsTimings;
+    List<dynamic>? awayGoalsTimings;
+    List<dynamic>? teamACardDetails;
+    List<dynamic>? teamBCardDetails;
+    H2H? h2H;
+    List<String>? tvStations;
+    Weather? weather;
+    String? gptEn;
+    GptInt? gptInt;
+    OddsComparison? oddsComparison;
 
     Data({
-        required this.id,
-        required this.homeId,
-        required this.awayId,
-        required this.season,
-        required this.status,
-        required this.roundId,
-        required this.gameWeek,
-        required this.revisedGameWeek,
-        required this.homeGoals,
-        required this.awayGoals,
-        required this.homeGoalCount,
-        required this.awayGoalCount,
-        required this.totalGoalCount,
-        required this.teamACorners,
-        required this.teamBCorners,
-        required this.totalCornerCount,
-        required this.teamAOffsides,
-        required this.teamBOffsides,
-        required this.teamAYellowCards,
-        required this.teamBYellowCards,
-        required this.teamARedCards,
-        required this.teamBRedCards,
-        required this.teamAShotsOnTarget,
-        required this.teamBShotsOnTarget,
-        required this.teamAShotsOffTarget,
-        required this.teamBShotsOffTarget,
-        required this.teamAShots,
-        required this.teamBShots,
-        required this.teamAFouls,
-        required this.teamBFouls,
-        required this.teamAPossession,
-        required this.teamBPossession,
-        required this.refereeId,
-        required this.coachAId,
-        required this.coachBId,
-        required this.stadiumName,
-        required this.stadiumLocation,
-        required this.teamACardsNum,
-        required this.teamBCardsNum,
-        required this.oddsFt1,
-        required this.oddsFtX,
-        required this.oddsFt2,
-        required this.oddsFtOver05,
-        required this.oddsFtOver15,
-        required this.oddsFtOver25,
-        required this.oddsFtOver35,
-        required this.oddsFtOver45,
-        required this.oddsFtUnder05,
-        required this.oddsFtUnder15,
-        required this.oddsFtUnder25,
-        required this.oddsFtUnder35,
-        required this.oddsFtUnder45,
-        required this.oddsBttsYes,
-        required this.oddsBttsNo,
-        required this.oddsTeamACsYes,
-        required this.oddsTeamACsNo,
-        required this.oddsTeamBCsYes,
-        required this.oddsTeamBCsNo,
-        required this.oddsDoublechance1X,
-        required this.oddsDoublechance12,
-        required this.oddsDoublechanceX2,
-        required this.odds1StHalfResult1,
-        required this.odds1StHalfResultX,
-        required this.odds1StHalfResult2,
-        required this.odds2NdHalfResult1,
-        required this.odds2NdHalfResultX,
-        required this.odds2NdHalfResult2,
-        required this.oddsDnb1,
-        required this.oddsDnb2,
-        required this.oddsCornersOver75,
-        required this.oddsCornersOver85,
-        required this.oddsCornersOver95,
-        required this.oddsCornersOver105,
-        required this.oddsCornersOver115,
-        required this.oddsCornersUnder75,
-        required this.oddsCornersUnder85,
-        required this.oddsCornersUnder95,
-        required this.oddsCornersUnder105,
-        required this.oddsCornersUnder115,
-        required this.oddsCorners1,
-        required this.oddsCornersX,
-        required this.oddsCorners2,
-        required this.oddsTeamToScoreFirst1,
-        required this.oddsTeamToScoreFirstX,
-        required this.oddsTeamToScoreFirst2,
-        required this.oddsWinToNil1,
-        required this.oddsWinToNil2,
-        required this.odds1StHalfOver05,
-        required this.odds1StHalfOver15,
-        required this.odds1StHalfOver25,
-        required this.odds1StHalfOver35,
-        required this.odds1StHalfUnder05,
-        required this.odds1StHalfUnder15,
-        required this.odds1StHalfUnder25,
-        required this.odds1StHalfUnder35,
-        required this.odds2NdHalfOver05,
-        required this.odds2NdHalfOver15,
-        required this.odds2NdHalfOver25,
-        required this.odds2NdHalfOver35,
-        required this.odds2NdHalfUnder05,
-        required this.odds2NdHalfUnder15,
-        required this.odds2NdHalfUnder25,
-        required this.odds2NdHalfUnder35,
-        required this.oddsBtts1StHalfYes,
-        required this.oddsBtts1StHalfNo,
-        required this.oddsBtts2NdHalfYes,
-        required this.oddsBtts2NdHalfNo,
-        required this.overallGoalCount,
-        required this.htGoalsTeamA,
-        required this.htGoalsTeamB,
-        required this.goals2HgTeamA,
-        required this.goals2HgTeamB,
-        required this.goalCount2Hg,
-        required this.htGoalCount,
-        required this.dateUnix,
-        required this.winningTeam,
-        required this.noHomeAway,
-        required this.bttsPotential,
-        required this.bttsFhgPotential,
-        required this.btts2HgPotential,
-        required this.goalTimingDisabled,
-        required this.attendance,
-        required this.cornerTimingsRecorded,
-        required this.cardTimingsRecorded,
-        required this.teamAFhCorners,
-        required this.teamBFhCorners,
-        required this.teamA2HCorners,
-        required this.teamB2HCorners,
-        required this.cornerFhCount,
-        required this.corner2HCount,
-        required this.teamAFhCards,
-        required this.teamBFhCards,
-        required this.teamA2HCards,
-        required this.teamB2HCards,
-        required this.totalFhCards,
-        required this.total2HCards,
-        required this.attacksRecorded,
-        required this.teamADangerousAttacks,
-        required this.teamBDangerousAttacks,
-        required this.teamAAttacks,
-        required this.teamBAttacks,
-        required this.teamAXg,
-        required this.teamBXg,
-        required this.totalXg,
-        required this.teamAPenaltiesWon,
-        required this.teamBPenaltiesWon,
-        required this.teamAPenaltyGoals,
-        required this.teamBPenaltyGoals,
-        required this.teamAPenaltyMissed,
-        required this.teamBPenaltyMissed,
-        required this.pensRecorded,
-        required this.goalTimingsRecorded,
-        required this.teamA010MinGoals,
-        required this.teamB010MinGoals,
-        required this.teamACorners010Min,
-        required this.teamBCorners010Min,
-        required this.teamACards010Min,
-        required this.teamBCards010Min,
-        required this.throwinsRecorded,
-        required this.teamAThrowins,
-        required this.teamBThrowins,
-        required this.freekicksRecorded,
-        required this.teamAFreekicks,
-        required this.teamBFreekicks,
-        required this.goalkicksRecorded,
-        required this.teamAGoalkicks,
-        required this.teamBGoalkicks,
-        required this.o45Potential,
-        required this.o35Potential,
-        required this.o25Potential,
-        required this.o15Potential,
-        required this.o05Potential,
-        required this.o15HtPotential,
-        required this.o05HtPotential,
-        required this.o052HPotential,
-        required this.o152HPotential,
-        required this.cornersPotential,
-        required this.offsidesPotential,
-        required this.cardsPotential,
-        required this.avgPotential,
-        required this.homeUrl,
-        required this.homeImage,
-        required this.homeName,
-        required this.awayUrl,
-        required this.awayImage,
-        required this.awayName,
-        required this.homePpg,
-        required this.awayPpg,
-        required this.preMatchHomePpg,
-        required this.preMatchAwayPpg,
-        required this.preMatchTeamAOverallPpg,
-        required this.preMatchTeamBOverallPpg,
-        required this.u45Potential,
-        required this.u35Potential,
-        required this.u25Potential,
-        required this.u15Potential,
-        required this.u05Potential,
-        required this.cornersO85Potential,
-        required this.cornersO95Potential,
-        required this.cornersO105Potential,
-        required this.teamAXgPrematch,
-        required this.teamBXgPrematch,
-        required this.totalXgPrematch,
-        required this.matchUrl,
-        required this.competitionId,
-        required this.matchesCompletedMinimum,
-        required this.lineups,
-        required this.bench,
-        required this.teamAGoalDetails,
-        required this.teamBGoalDetails,
-        required this.trends,
-        required this.homeGoalsTimings,
-        required this.awayGoalsTimings,
-        required this.teamACardDetails,
-        required this.teamBCardDetails,
-        required this.h2H,
-        required this.tvStations,
-        required this.weather,
-        required this.gptEn,
-        required this.gptInt,
-        required this.oddsComparison,
+        this.id,
+        this.homeId,
+        this.awayId,
+        this.season,
+        this.status,
+        this.roundId,
+        this.gameWeek,
+        this.revisedGameWeek,
+        this.homeGoals,
+        this.awayGoals,
+        this.homeGoalCount,
+        this.awayGoalCount,
+        this.totalGoalCount,
+        this.teamACorners,
+        this.teamBCorners,
+        this.totalCornerCount,
+        this.teamAOffsides,
+        this.teamBOffsides,
+        this.teamAYellowCards,
+        this.teamBYellowCards,
+        this.teamARedCards,
+        this.teamBRedCards,
+        this.teamAShotsOnTarget,
+        this.teamBShotsOnTarget,
+        this.teamAShotsOffTarget,
+        this.teamBShotsOffTarget,
+        this.teamAShots,
+        this.teamBShots,
+        this.teamAFouls,
+        this.teamBFouls,
+        this.teamAPossession,
+        this.teamBPossession,
+        this.refereeId,
+        this.coachAId,
+        this.coachBId,
+        this.stadiumName,
+        this.stadiumLocation,
+        this.teamACardsNum,
+        this.teamBCardsNum,
+        this.oddsFt1,
+        this.oddsFtX,
+        this.oddsFt2,
+        this.oddsFtOver05,
+        this.oddsFtOver15,
+        this.oddsFtOver25,
+        this.oddsFtOver35,
+        this.oddsFtOver45,
+        this.oddsFtUnder05,
+        this.oddsFtUnder15,
+        this.oddsFtUnder25,
+        this.oddsFtUnder35,
+        this.oddsFtUnder45,
+        this.oddsBttsYes,
+        this.oddsBttsNo,
+        this.oddsTeamACsYes,
+        this.oddsTeamACsNo,
+        this.oddsTeamBCsYes,
+        this.oddsTeamBCsNo,
+        this.oddsDoublechance1X,
+        this.oddsDoublechance12,
+        this.oddsDoublechanceX2,
+        this.odds1StHalfResult1,
+        this.odds1StHalfResultX,
+        this.odds1StHalfResult2,
+        this.odds2NdHalfResult1,
+        this.odds2NdHalfResultX,
+        this.odds2NdHalfResult2,
+        this.oddsDnb1,
+        this.oddsDnb2,
+        this.oddsCornersOver75,
+        this.oddsCornersOver85,
+        this.oddsCornersOver95,
+        this.oddsCornersOver105,
+        this.oddsCornersOver115,
+        this.oddsCornersUnder75,
+        this.oddsCornersUnder85,
+        this.oddsCornersUnder95,
+        this.oddsCornersUnder105,
+        this.oddsCornersUnder115,
+        this.oddsCorners1,
+        this.oddsCornersX,
+        this.oddsCorners2,
+        this.oddsTeamToScoreFirst1,
+        this.oddsTeamToScoreFirstX,
+        this.oddsTeamToScoreFirst2,
+        this.oddsWinToNil1,
+        this.oddsWinToNil2,
+        this.odds1StHalfOver05,
+        this.odds1StHalfOver15,
+        this.odds1StHalfOver25,
+        this.odds1StHalfOver35,
+        this.odds1StHalfUnder05,
+        this.odds1StHalfUnder15,
+        this.odds1StHalfUnder25,
+        this.odds1StHalfUnder35,
+        this.odds2NdHalfOver05,
+        this.odds2NdHalfOver15,
+        this.odds2NdHalfOver25,
+        this.odds2NdHalfOver35,
+        this.odds2NdHalfUnder05,
+        this.odds2NdHalfUnder15,
+        this.odds2NdHalfUnder25,
+        this.odds2NdHalfUnder35,
+        this.oddsBtts1StHalfYes,
+        this.oddsBtts1StHalfNo,
+        this.oddsBtts2NdHalfYes,
+        this.oddsBtts2NdHalfNo,
+        this.overallGoalCount,
+        this.htGoalsTeamA,
+        this.htGoalsTeamB,
+        this.goals2HgTeamA,
+        this.goals2HgTeamB,
+        this.goalCount2Hg,
+        this.htGoalCount,
+        this.dateUnix,
+        this.winningTeam,
+        this.noHomeAway,
+        this.bttsPotential,
+        this.bttsFhgPotential,
+        this.btts2HgPotential,
+        this.goalTimingDisabled,
+        this.attendance,
+        this.cornerTimingsRecorded,
+        this.cardTimingsRecorded,
+        this.teamAFhCorners,
+        this.teamBFhCorners,
+        this.teamA2HCorners,
+        this.teamB2HCorners,
+        this.cornerFhCount,
+        this.corner2HCount,
+        this.teamAFhCards,
+        this.teamBFhCards,
+        this.teamA2HCards,
+        this.teamB2HCards,
+        this.totalFhCards,
+        this.total2HCards,
+        this.attacksRecorded,
+        this.teamADangerousAttacks,
+        this.teamBDangerousAttacks,
+        this.teamAAttacks,
+        this.teamBAttacks,
+        this.teamAXg,
+        this.teamBXg,
+        this.totalXg,
+        this.teamAPenaltiesWon,
+        this.teamBPenaltiesWon,
+        this.teamAPenaltyGoals,
+        this.teamBPenaltyGoals,
+        this.teamAPenaltyMissed,
+        this.teamBPenaltyMissed,
+        this.pensRecorded,
+        this.goalTimingsRecorded,
+        this.teamA010MinGoals,
+        this.teamB010MinGoals,
+        this.teamACorners010Min,
+        this.teamBCorners010Min,
+        this.teamACards010Min,
+        this.teamBCards010Min,
+        this.throwinsRecorded,
+        this.teamAThrowins,
+        this.teamBThrowins,
+        this.freekicksRecorded,
+        this.teamAFreekicks,
+        this.teamBFreekicks,
+        this.goalkicksRecorded,
+        this.teamAGoalkicks,
+        this.teamBGoalkicks,
+        this.o45Potential,
+        this.o35Potential,
+        this.o25Potential,
+        this.o15Potential,
+        this.o05Potential,
+        this.o15HtPotential,
+        this.o05HtPotential,
+        this.o052HPotential,
+        this.o152HPotential,
+        this.cornersPotential,
+        this.offsidesPotential,
+        this.cardsPotential,
+        this.avgPotential,
+        this.homeUrl,
+        this.homeImage,
+        this.homeName,
+        this.awayUrl,
+        this.awayImage,
+        this.awayName,
+        this.homePpg,
+        this.awayPpg,
+        this.preMatchHomePpg,
+        this.preMatchAwayPpg,
+        this.preMatchTeamAOverallPpg,
+        this.preMatchTeamBOverallPpg,
+        this.u45Potential,
+        this.u35Potential,
+        this.u25Potential,
+        this.u15Potential,
+        this.u05Potential,
+        this.cornersO85Potential,
+        this.cornersO95Potential,
+        this.cornersO105Potential,
+        this.teamAXgPrematch,
+        this.teamBXgPrematch,
+        this.totalXgPrematch,
+        this.matchUrl,
+        this.competitionId,
+        this.matchesCompletedMinimum,
+        this.lineups,
+        this.bench,
+        this.teamAGoalDetails,
+        this.teamBGoalDetails,
+        this.trends,
+        this.homeGoalsTimings,
+        this.awayGoalsTimings,
+        this.teamACardDetails,
+        this.teamBCardDetails,
+        this.h2H,
+        this.tvStations,
+        this.weather,
+        this.gptEn,
+        this.gptInt,
+        this.oddsComparison,
     });
 
     factory Data.fromJson(Map<String, dynamic> json) => Data(
         id: json["id"],
         homeId: json["homeID"],
         awayId: json["awayID"],
-        season: json["season"],
+        season: json["season"] ?? "",
         status: json["status"],
         roundId: json["roundID"],
         gameWeek: json["game_week"],
         revisedGameWeek: json["revised_game_week"],
-        homeGoals: List<dynamic>.from(json["homeGoals"].map((x) => x)),
-        awayGoals: List<dynamic>.from(json["awayGoals"].map((x) => x)),
+        homeGoals: _toList(json["homeGoals"]),
+        awayGoals: _toList(json["awayGoals"]),
         homeGoalCount: json["homeGoalCount"],
         awayGoalCount: json["awayGoalCount"],
         totalGoalCount: json["totalGoalCount"],
@@ -523,8 +523,8 @@ class Data {
         refereeId: json["refereeID"],
         coachAId: json["coach_a_ID"],
         coachBId: json["coach_b_ID"],
-        stadiumName: json["stadium_name"],
-        stadiumLocation: json["stadium_location"],
+        stadiumName: json["stadium_name"] ?? "",
+        stadiumLocation: json["stadium_location"] ?? "",
         teamACardsNum: json["team_a_cards_num"],
         teamBCardsNum: json["team_b_cards_num"],
         oddsFt1: json["odds_ft_1"]?.toDouble(),
@@ -590,7 +590,7 @@ class Data {
         odds2NdHalfUnder05: json["odds_2nd_half_under05"],
         odds2NdHalfUnder15: json["odds_2nd_half_under15"]?.toDouble(),
         odds2NdHalfUnder25: json["odds_2nd_half_under25"]?.toDouble(),
-        odds2NdHalfUnder35: json["odds_2nd_half_under35"]?.toDouble(),
+        odds2NdHalfUnder35: json["odds_2nd_half_under35"],
         oddsBtts1StHalfYes: json["odds_btts_1st_half_yes"],
         oddsBtts1StHalfNo: json["odds_btts_1st_half_no"],
         oddsBtts2NdHalfYes: json["odds_btts_2nd_half_yes"],
@@ -668,12 +668,12 @@ class Data {
         offsidesPotential: json["offsides_potential"]?.toDouble(),
         cardsPotential: json["cards_potential"]?.toDouble(),
         avgPotential: json["avg_potential"]?.toDouble(),
-        homeUrl: json["home_url"],
-        homeImage: json["home_image"],
-        homeName: json["home_name"],
-        awayUrl: json["away_url"],
-        awayImage: json["away_image"],
-        awayName: json["away_name"],
+        homeUrl: json["home_url"] ?? "",
+        homeImage: json["home_image"] ?? "",
+        homeName: json["home_name"] ?? "",
+        awayUrl: json["away_url"] ?? "",
+        awayImage: json["away_image"] ?? "",
+        awayName: json["away_name"] ?? "",
         homePpg: json["home_ppg"],
         awayPpg: json["away_ppg"]?.toDouble(),
         preMatchHomePpg: json["pre_match_home_ppg"],
@@ -688,27 +688,27 @@ class Data {
         cornersO85Potential: json["corners_o85_potential"],
         cornersO95Potential: json["corners_o95_potential"],
         cornersO105Potential: json["corners_o105_potential"],
-        teamAXgPrematch: json["team_a_xg_prematch"]?.toDouble(),
-        teamBXgPrematch: json["team_b_xg_prematch"]?.toDouble(),
-        totalXgPrematch: json["total_xg_prematch"]?.toDouble(),
-        matchUrl: json["match_url"],
+        teamAXgPrematch: json["team_a_xg_prematch"],
+        teamBXgPrematch: json["team_b_xg_prematch"],
+        totalXgPrematch: json["total_xg_prematch"],
+        matchUrl: json["match_url"] ?? "",
         competitionId: json["competition_id"],
         matchesCompletedMinimum: json["matches_completed_minimum"],
-        lineups: Bench.fromJson(json["lineups"]),
-        bench: Bench.fromJson(json["bench"]),
-        teamAGoalDetails: List<dynamic>.from(json["team_a_goal_details"].map((x) => x)),
-        teamBGoalDetails: List<dynamic>.from(json["team_b_goal_details"].map((x) => x)),
+        lineups: _parseMap(json["lineups"], (m) => Bench.fromJson(m)),
+        bench: _parseMap(json["bench"], (m) => Bench.fromJson(m)),
+        teamAGoalDetails: _toList(json["team_a_goal_details"]),
+        teamBGoalDetails: _toList(json["team_b_goal_details"]),
         trends: json["trends"],
-        homeGoalsTimings: List<dynamic>.from(json["homeGoals_timings"].map((x) => x)),
-        awayGoalsTimings: List<dynamic>.from(json["awayGoals_timings"].map((x) => x)),
-        teamACardDetails: List<dynamic>.from(json["team_a_card_details"].map((x) => x)),
-        teamBCardDetails: List<dynamic>.from(json["team_b_card_details"].map((x) => x)),
-        h2H: H2H.fromJson(json["h2h"]),
-        tvStations: List<String>.from(json["tv_stations"].map((x) => x)),
-        weather: Weather.fromJson(json["weather"]),
+        homeGoalsTimings: _toList(json["homeGoals_timings"]),
+        awayGoalsTimings: _toList(json["awayGoals_timings"]),
+        teamACardDetails: _toList(json["team_a_card_details"]),
+        teamBCardDetails: _toList(json["team_b_card_details"]),
+        h2H: _parseMap(json["h2h"], (m) => H2H.fromJson(m)),
+        tvStations: _toStringList(json["tv_stations"]),
+        weather: _parseMap(json["weather"], (m) => Weather.fromJson(m)),
         gptEn: json["gpt_en"],
-        gptInt: GptInt.fromJson(json["gpt_int"]),
-        oddsComparison: OddsComparison.fromJson(json["odds_comparison"]),
+        gptInt: _parseMap(json["gpt_int"], (m) => GptInt.fromJson(m)),
+        oddsComparison: _parseMap(json["odds_comparison"], (m) => OddsComparison.fromJson(m)),
     );
 
     Map<String, dynamic> toJson() => {
@@ -720,8 +720,8 @@ class Data {
         "roundID": roundId,
         "game_week": gameWeek,
         "revised_game_week": revisedGameWeek,
-        "homeGoals": List<dynamic>.from(homeGoals.map((x) => x)),
-        "awayGoals": List<dynamic>.from(awayGoals.map((x) => x)),
+        "homeGoals": List<dynamic>.from(homeGoals?.map((x) => x) ?? []),
+        "awayGoals": List<dynamic>.from(awayGoals?.map((x) => x) ?? []),
         "homeGoalCount": homeGoalCount,
         "awayGoalCount": awayGoalCount,
         "totalGoalCount": totalGoalCount,
@@ -918,97 +918,97 @@ class Data {
         "match_url": matchUrl,
         "competition_id": competitionId,
         "matches_completed_minimum": matchesCompletedMinimum,
-        "lineups": lineups.toJson(),
-        "bench": bench.toJson(),
-        "team_a_goal_details": List<dynamic>.from(teamAGoalDetails.map((x) => x)),
-        "team_b_goal_details": List<dynamic>.from(teamBGoalDetails.map((x) => x)),
+        "lineups": lineups?.toJson(),
+        "bench": bench?.toJson(),
+        "team_a_goal_details": List<dynamic>.from(teamAGoalDetails?.map((x) => x) ?? []),
+        "team_b_goal_details": List<dynamic>.from(teamBGoalDetails?.map((x) => x) ?? []),
         "trends": trends,
-        "homeGoals_timings": List<dynamic>.from(homeGoalsTimings.map((x) => x)),
-        "awayGoals_timings": List<dynamic>.from(awayGoalsTimings.map((x) => x)),
-        "team_a_card_details": List<dynamic>.from(teamACardDetails.map((x) => x)),
-        "team_b_card_details": List<dynamic>.from(teamBCardDetails.map((x) => x)),
-        "h2h": h2H.toJson(),
-        "tv_stations": List<dynamic>.from(tvStations.map((x) => x)),
-        "weather": weather.toJson(),
+        "homeGoals_timings": List<dynamic>.from(homeGoalsTimings?.map((x) => x) ?? []),
+        "awayGoals_timings": List<dynamic>.from(awayGoalsTimings?.map((x) => x) ?? []),
+        "team_a_card_details": List<dynamic>.from(teamACardDetails?.map((x) => x) ?? []),
+        "team_b_card_details": List<dynamic>.from(teamBCardDetails?.map((x) => x)?? []),
+        "h2h": h2H?.toJson(),
+        "tv_stations": List<dynamic>.from(tvStations?.map((x) => x) ?? []),
+        "weather": weather?.toJson(),
         "gpt_en": gptEn,
-        "gpt_int": gptInt.toJson(),
-        "odds_comparison": oddsComparison.toJson(),
+        "gpt_int": gptInt?.toJson(),
+        "odds_comparison": oddsComparison?.toJson(),
     };
 }
 
 class Bench {
-    List<dynamic> teamA;
-    List<dynamic> teamB;
+    List<dynamic>? teamA;
+    List<dynamic>? teamB;
 
     Bench({
-        required this.teamA,
-        required this.teamB,
+        this.teamA,
+        this.teamB,
     });
 
     factory Bench.fromJson(Map<String, dynamic> json) => Bench(
-        teamA: List<dynamic>.from(json["team_a"].map((x) => x)),
-        teamB: List<dynamic>.from(json["team_b"].map((x) => x)),
+        teamA: _toList(json["team_a"]),
+        teamB: _toList(json["team_b"]),
     );
 
     Map<String, dynamic> toJson() => {
-        "team_a": List<dynamic>.from(teamA.map((x) => x)),
-        "team_b": List<dynamic>.from(teamB.map((x) => x)),
+        "team_a": List<dynamic>.from(teamA?.map((x) => x) ?? []),
+        "team_b": List<dynamic>.from(teamB?.map((x) => x) ?? []),
     };
 }
 
 class GptInt {
-    String es;
-    String pt;
-    String tr;
-    String de;
-    String fr;
-    String ja;
-    String it;
-    String se;
-    String ru;
-    String kr;
-    String nl;
-    String dk;
-    String no;
-    String cz;
-    String gr;
-    String pl;
-    String ro;
-    String id;
-    String hr;
-    String th;
-    String fi;
-    String vn;
-    String zht;
-    String cn;
-    String bg;
+    String? es;
+    String? pt;
+    String? tr;
+    String? de;
+    String? fr;
+    String? ja;
+    String? it;
+    String? se;
+    String? ru;
+    String? kr;
+    String? nl;
+    String? dk;
+    String? no;
+    String? cz;
+    String? gr;
+    String? pl;
+    String? ro;
+    String? id;
+    String? hr;
+    String? th;
+    String? fi;
+    String? vn;
+    String? zht;
+    String? cn;
+    String? bg;
 
     GptInt({
-        required this.es,
-        required this.pt,
-        required this.tr,
-        required this.de,
-        required this.fr,
-        required this.ja,
-        required this.it,
-        required this.se,
-        required this.ru,
-        required this.kr,
-        required this.nl,
-        required this.dk,
-        required this.no,
-        required this.cz,
-        required this.gr,
-        required this.pl,
-        required this.ro,
-        required this.id,
-        required this.hr,
-        required this.th,
-        required this.fi,
-        required this.vn,
-        required this.zht,
-        required this.cn,
-        required this.bg,
+        this.es,
+        this.pt,
+        this.tr,
+        this.de,
+        this.fr,
+        this.ja,
+        this.it,
+        this.se,
+        this.ru,
+        this.kr,
+        this.nl,
+        this.dk,
+        this.no,
+        this.cz,
+        this.gr,
+        this.pl,
+        this.ro,
+        this.id,
+        this.hr,
+        this.th,
+        this.fi,
+        this.vn,
+        this.zht,
+        this.cn,
+        this.bg,
     });
 
     factory GptInt.fromJson(Map<String, dynamic> json) => GptInt(
@@ -1068,109 +1068,119 @@ class GptInt {
     };
 }
 
+
 class H2H {
-    int teamAId;
-    int teamBId;
-    Map<String, int> previousMatchesResults;
-    Map<String, int> bettingStats;
-    List<dynamic> previousMatchesIds;
+  num? teamAId;
+  num? teamBId;
+  Map<String, int>? previousMatchesResults;
+  Map<String, int>? bettingStats;
+  List<dynamic>? previousMatchesIds;
 
-    H2H({
-        required this.teamAId,
-        required this.teamBId,
-        required this.previousMatchesResults,
-        required this.bettingStats,
-        required this.previousMatchesIds,
-    });
+  H2H({
+    this.teamAId,
+    this.teamBId,
+    this.previousMatchesResults,
+    this.bettingStats,
+    this.previousMatchesIds,
+  });
 
-    factory H2H.fromJson(Map<String, dynamic> json) => H2H(
+  factory H2H.fromJson(Map<String, dynamic> json) => H2H(
         teamAId: json["team_a_id"],
         teamBId: json["team_b_id"],
-        previousMatchesResults: Map.from(json["previous_matches_results"]).map((k, v) => MapEntry<String, int>(k, v)),
-        bettingStats: Map.from(json["betting_stats"]).map((k, v) => MapEntry<String, int>(k, v)),
-        previousMatchesIds: List<dynamic>.from(json["previous_matches_ids"].map((x) => x)),
-    );
+        previousMatchesResults:
+            _parseIntMap(json["previous_matches_results"]),
+        bettingStats: _parseIntMap(json["betting_stats"]),
+        previousMatchesIds: _toList(json["previous_matches_ids"]),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "team_a_id": teamAId,
         "team_b_id": teamBId,
-        "previous_matches_results": Map.from(previousMatchesResults).map((k, v) => MapEntry<String, dynamic>(k, v)),
-        "betting_stats": Map.from(bettingStats).map((k, v) => MapEntry<String, dynamic>(k, v)),
-        "previous_matches_ids": List<dynamic>.from(previousMatchesIds.map((x) => x)),
-    };
+        "previous_matches_results":
+            Map.from(previousMatchesResults ?? {})
+                .map((k, v) => MapEntry<String, dynamic>(k, v)),
+        "betting_stats": Map.from(bettingStats ?? {})
+            .map((k, v) => MapEntry<String, dynamic>(k, v)),
+        "previous_matches_ids":
+            List<dynamic>.from(previousMatchesIds?.map((x) => x) ?? []),
+      };
 }
 
 class OddsComparison {
-    The2NdHalfGoals the2NdHalfGoals;
-    GoalsOverUnder goalsOverUnder;
-    SecondHalfResult secondHalfResult;
-    FtResult ftResult;
-    BothTeamsToScore bothTeamsToScore;
-    Corners corners;
-    The1StHalfGoals the1StHalfGoals;
-    HalfTimeResult halfTimeResult;
-    Corners1X2 corners1X2;
-    BothTeamsToScoreInHalf bothTeamsToScoreIn1StHalf;
-    DoubleChance doubleChance;
-    BothTeamsToScoreInHalf bothTeamsToScoreIn2NdHalf;
-    Map<String, CornerMatchBet> cornerMatchBet;
+    The2NdHalfGoals? the2NdHalfGoals;
+    GoalsOverUnder? goalsOverUnder;
+    SecondHalfResult? secondHalfResult;
+    FtResult? ftResult;
+    BothTeamsToScore? bothTeamsToScore;
+    Corners? corners;
+    The1StHalfGoals? the1StHalfGoals;
+    HalfTimeResult? halfTimeResult;
+    Corners1X2? corners1X2;
+    BothTeamsToScoreInHalf? bothTeamsToScoreIn1StHalf;
+    DoubleChance? doubleChance;
+    BothTeamsToScoreInHalf? bothTeamsToScoreIn2NdHalf;
+    Map<String, CornerMatchBet>? cornerMatchBet;
 
     OddsComparison({
-        required this.the2NdHalfGoals,
-        required this.goalsOverUnder,
-        required this.secondHalfResult,
-        required this.ftResult,
-        required this.bothTeamsToScore,
-        required this.corners,
-        required this.the1StHalfGoals,
-        required this.halfTimeResult,
-        required this.corners1X2,
-        required this.bothTeamsToScoreIn1StHalf,
-        required this.doubleChance,
-        required this.bothTeamsToScoreIn2NdHalf,
-        required this.cornerMatchBet,
+        this.the2NdHalfGoals,
+        this.goalsOverUnder,
+        this.secondHalfResult,
+        this.ftResult,
+        this.bothTeamsToScore,
+        this.corners,
+        this.the1StHalfGoals,
+        this.halfTimeResult,
+        this.corners1X2,
+        this.bothTeamsToScoreIn1StHalf,
+        this.doubleChance,
+        this.bothTeamsToScoreIn2NdHalf,
+        this.cornerMatchBet,
     });
 
     factory OddsComparison.fromJson(Map<String, dynamic> json) => OddsComparison(
-        the2NdHalfGoals: The2NdHalfGoals.fromJson(json["2nd Half Goals"]),
-        goalsOverUnder: GoalsOverUnder.fromJson(json["Goals Over/Under"]),
-        secondHalfResult: SecondHalfResult.fromJson(json["Second Half Result"]),
-        ftResult: FtResult.fromJson(json["FT Result"]),
-        bothTeamsToScore: BothTeamsToScore.fromJson(json["Both Teams To Score"]),
-        corners: Corners.fromJson(json["Corners"]),
-        the1StHalfGoals: The1StHalfGoals.fromJson(json["1st Half Goals"]),
-        halfTimeResult: HalfTimeResult.fromJson(json["Half Time Result"]),
-        corners1X2: Corners1X2.fromJson(json["Corners 1X2"]),
-        bothTeamsToScoreIn1StHalf: BothTeamsToScoreInHalf.fromJson(json["Both Teams to Score in 1st Half"]),
-        doubleChance: DoubleChance.fromJson(json["Double Chance"]),
-        bothTeamsToScoreIn2NdHalf: BothTeamsToScoreInHalf.fromJson(json["Both Teams to Score in 2nd Half"]),
-        cornerMatchBet: Map.from(json["Corner Match Bet"]).map((k, v) => MapEntry<String, CornerMatchBet>(k, CornerMatchBet.fromJson(v))),
+        the2NdHalfGoals: _parseMap(json["2nd Half Goals"], (m) => The2NdHalfGoals.fromJson(m)),
+        goalsOverUnder: _parseMap(json["Goals? Over/Under"], (m) => GoalsOverUnder.fromJson(m)),
+        secondHalfResult: _parseMap(json["Second Half Result"], (m) => SecondHalfResult.fromJson(m)),
+        ftResult: _parseMap(json["FT Result"], (m) => FtResult.fromJson(m)),
+        bothTeamsToScore: _parseMap(json["Both Teams To Score"], (m) => BothTeamsToScore.fromJson(m)),
+        corners: _parseMap(json["Corners"], (m) => Corners.fromJson(m)),
+        the1StHalfGoals: _parseMap(json["1st Half Goals"], (m) => The1StHalfGoals.fromJson(m)),
+        halfTimeResult: _parseMap(json["Half Time Result"], (m) => HalfTimeResult.fromJson(m)),
+        corners1X2: _parseMap(json["Corners 1X2"], (m) => Corners1X2.fromJson(m)),
+        bothTeamsToScoreIn1StHalf: _parseMap(json["Both Teams to Score in 1st Half"], (m) => BothTeamsToScoreInHalf.fromJson(m)),
+        doubleChance: _parseMap(json["Double Chance"], (m) => DoubleChance.fromJson(m)),
+        bothTeamsToScoreIn2NdHalf: _parseMap(json["Both Teams to Score in 2nd Half"], (m) => BothTeamsToScoreInHalf.fromJson(m)),
+        cornerMatchBet: (json["Corner Match Bet"] is Map)
+            ? Map<String, CornerMatchBet>.from((json["Corner Match Bet"] as Map).map(
+                (k, v) => MapEntry<String, CornerMatchBet>(k.toString(), CornerMatchBet.fromJson(v)),
+              ))
+            : <String, CornerMatchBet>{},
     );
 
     Map<String, dynamic> toJson() => {
-        "2nd Half Goals": the2NdHalfGoals.toJson(),
-        "Goals Over/Under": goalsOverUnder.toJson(),
-        "Second Half Result": secondHalfResult.toJson(),
-        "FT Result": ftResult.toJson(),
-        "Both Teams To Score": bothTeamsToScore.toJson(),
-        "Corners": corners.toJson(),
-        "1st Half Goals": the1StHalfGoals.toJson(),
-        "Half Time Result": halfTimeResult.toJson(),
-        "Corners 1X2": corners1X2.toJson(),
-        "Both Teams to Score in 1st Half": bothTeamsToScoreIn1StHalf.toJson(),
-        "Double Chance": doubleChance.toJson(),
-        "Both Teams to Score in 2nd Half": bothTeamsToScoreIn2NdHalf.toJson(),
-        "Corner Match Bet": Map.from(cornerMatchBet).map((k, v) => MapEntry<String, dynamic>(k, v.toJson())),
+        "2nd Half Goals": the2NdHalfGoals?.toJson(),
+        "Goals? Over/Under": goalsOverUnder?.toJson(),
+        "Second Half Result": secondHalfResult?.toJson(),
+        "FT Result": ftResult?.toJson(),
+        "Both Teams To Score": bothTeamsToScore?.toJson(),
+        "Corners": corners?.toJson(),
+        "1st Half Goals": the1StHalfGoals?.toJson(),
+        "Half Time Result": halfTimeResult?.toJson(),
+        "Corners 1X2": corners1X2?.toJson(),
+        "Both Teams to Score in 1st Half": bothTeamsToScoreIn1StHalf?.toJson(),
+        "Double Chance": doubleChance?.toJson(),
+        "Both Teams to Score in 2nd Half": bothTeamsToScoreIn2NdHalf?.toJson(),
+        "Corner Match Bet": Map.from(cornerMatchBet ?? {}).map((k, v) => MapEntry<String, dynamic>(k, v.toJson())),
     };
 }
 
 class BothTeamsToScore {
-    AwayClass no;
-    AwayClass yes;
+    AwayClass? no;
+    AwayClass? yes;
 
     BothTeamsToScore({
-        required this.no,
-        required this.yes,
+        this.no,
+        this.yes,
     });
 
     factory BothTeamsToScore.fromJson(Map<String, dynamic> json) => BothTeamsToScore(
@@ -1179,30 +1189,30 @@ class BothTeamsToScore {
     );
 
     Map<String, dynamic> toJson() => {
-        "No": no.toJson(),
-        "Yes": yes.toJson(),
+        "No": no?.toJson(),
+        "Yes": yes?.toJson(),
     };
 }
 
 class AwayClass {
-    String bet365;
-    String the888Sport;
-    String williamHill;
-    String unibet;
-    String the188Bet;
-    String pinnacle;
-    String the10Bet;
+    String? bet365;
+    String? the888Sport;
+    String? williamHill;
+    String? unibet;
+    String? the188Bet;
+    String? pinnacle;
+    String? the10Bet;
     String? the1Xbet;
     String? sbo;
 
     AwayClass({
-        required this.bet365,
-        required this.the888Sport,
-        required this.williamHill,
-        required this.unibet,
-        required this.the188Bet,
-        required this.pinnacle,
-        required this.the10Bet,
+        this.bet365,
+        this.the888Sport,
+        this.williamHill,
+        this.unibet,
+        this.the188Bet,
+        this.pinnacle,
+        this.the10Bet,
         this.the1Xbet,
         this.sbo,
     });
@@ -1233,12 +1243,12 @@ class AwayClass {
 }
 
 class BothTeamsToScoreInHalf {
-    BothTeamsToScoreIn1StHalfNo yes;
-    BothTeamsToScoreIn1StHalfNo no;
+    BothTeamsToScoreIn1StHalfNo? yes;
+    BothTeamsToScoreIn1StHalfNo? no;
 
     BothTeamsToScoreInHalf({
-        required this.yes,
-        required this.no,
+        this.yes,
+        this.no,
     });
 
     factory BothTeamsToScoreInHalf.fromJson(Map<String, dynamic> json) => BothTeamsToScoreInHalf(
@@ -1247,18 +1257,18 @@ class BothTeamsToScoreInHalf {
     );
 
     Map<String, dynamic> toJson() => {
-        "Yes": yes.toJson(),
-        "No": no.toJson(),
+        "Yes": yes?.toJson(),
+        "No": no?.toJson(),
     };
 }
 
 class BothTeamsToScoreIn1StHalfNo {
-    String the10Bet;
-    String bet365;
+    String? the10Bet;
+    String? bet365;
 
     BothTeamsToScoreIn1StHalfNo({
-        required this.the10Bet,
-        required this.bet365,
+        this.the10Bet,
+        this.bet365,
     });
 
     factory BothTeamsToScoreIn1StHalfNo.fromJson(Map<String, dynamic> json) => BothTeamsToScoreIn1StHalfNo(
@@ -1273,10 +1283,10 @@ class BothTeamsToScoreIn1StHalfNo {
 }
 
 class CornerMatchBet {
-    String bet365;
+    String? bet365;
 
     CornerMatchBet({
-        required this.bet365,
+        this.bet365,
     });
 
     factory CornerMatchBet.fromJson(Map<String, dynamic> json) => CornerMatchBet(
@@ -1289,28 +1299,28 @@ class CornerMatchBet {
 }
 
 class Corners {
-    Over115 over75;
-    Over105 over85;
-    Over105 under85;
-    Over105 over95;
-    Over105 under95;
-    Over105 over105;
-    Over105 under105;
-    Over115 under75;
-    Over115 over115;
-    Over115 under115;
+    Over115? over75;
+    Over105? over85;
+    Over105? under85;
+    Over105? over95;
+    Over105? under95;
+    Over105? over105;
+    Over105? under105;
+    Over115? under75;
+    Over115? over115;
+    Over115? under115;
 
     Corners({
-        required this.over75,
-        required this.over85,
-        required this.under85,
-        required this.over95,
-        required this.under95,
-        required this.over105,
-        required this.under105,
-        required this.under75,
-        required this.over115,
-        required this.under115,
+        this.over75,
+        this.over85,
+        this.under85,
+        this.over95,
+        this.under95,
+        this.over105,
+        this.under105,
+        this.under75,
+        this.over115,
+        this.under115,
     });
 
     factory Corners.fromJson(Map<String, dynamic> json) => Corners(
@@ -1327,28 +1337,28 @@ class Corners {
     );
 
     Map<String, dynamic> toJson() => {
-        "Over 7.5": over75.toJson(),
-        "Over 8.5": over85.toJson(),
-        "Under 8.5": under85.toJson(),
-        "Over 9.5": over95.toJson(),
-        "Under 9.5": under95.toJson(),
-        "Over 10.5": over105.toJson(),
-        "Under 10.5": under105.toJson(),
-        "Under 7.5": under75.toJson(),
-        "Over 11.5": over115.toJson(),
-        "Under 11.5": under115.toJson(),
+        "Over 7.5": over75?.toJson(),
+        "Over 8.5": over85?.toJson(),
+        "Under 8.5": under85?.toJson(),
+        "Over 9.5": over95?.toJson(),
+        "Under 9.5": under95?.toJson(),
+        "Over 10.5": over105?.toJson(),
+        "Under 10.5": under105?.toJson(),
+        "Under 7.5": under75?.toJson(),
+        "Over 11.5": over115?.toJson(),
+        "Under 11.5": under115?.toJson(),
     };
 }
 
 class Over105 {
-    String the1Xbet;
-    String unibet;
-    String pinnacle;
+    String? the1Xbet;
+    String? unibet;
+    String? pinnacle;
 
     Over105({
-        required this.the1Xbet,
-        required this.unibet,
-        required this.pinnacle,
+        this.the1Xbet,
+        this.unibet,
+        this.pinnacle,
     });
 
     factory Over105.fromJson(Map<String, dynamic> json) => Over105(
@@ -1365,12 +1375,12 @@ class Over105 {
 }
 
 class Over115 {
-    String the1Xbet;
-    String unibet;
+    String? the1Xbet;
+    String? unibet;
 
     Over115({
-        required this.the1Xbet,
-        required this.unibet,
+        this.the1Xbet,
+        this.unibet,
     });
 
     factory Over115.fromJson(Map<String, dynamic> json) => Over115(
@@ -1385,14 +1395,14 @@ class Over115 {
 }
 
 class Corners1X2 {
-    Over115 away;
-    Over115 home;
-    Over115 draw;
+    Over115? away;
+    Over115? home;
+    Over115? draw;
 
     Corners1X2({
-        required this.away,
-        required this.home,
-        required this.draw,
+        this.away,
+        this.home,
+        this.draw,
     });
 
     factory Corners1X2.fromJson(Map<String, dynamic> json) => Corners1X2(
@@ -1402,21 +1412,21 @@ class Corners1X2 {
     );
 
     Map<String, dynamic> toJson() => {
-        "Away": away.toJson(),
-        "Home": home.toJson(),
-        "Draw": draw.toJson(),
+        "Away": away?.toJson(),
+        "Home": home?.toJson(),
+        "Draw": draw?.toJson(),
     };
 }
 
 class DoubleChance {
-    DrawAway homeDraw;
-    DrawAway homeAway;
-    DrawAway drawAway;
+    DrawAway? homeDraw;
+    DrawAway? homeAway;
+    DrawAway? drawAway;
 
     DoubleChance({
-        required this.homeDraw,
-        required this.homeAway,
-        required this.drawAway,
+        this.homeDraw,
+        this.homeAway,
+        this.drawAway,
     });
 
     factory DoubleChance.fromJson(Map<String, dynamic> json) => DoubleChance(
@@ -1426,29 +1436,29 @@ class DoubleChance {
     );
 
     Map<String, dynamic> toJson() => {
-        "Home/Draw": homeDraw.toJson(),
-        "Home/Away": homeAway.toJson(),
-        "Draw/Away": drawAway.toJson(),
+        "Home/Draw": homeDraw?.toJson(),
+        "Home/Away": homeAway?.toJson(),
+        "Draw/Away": drawAway?.toJson(),
     };
 }
 
 class DrawAway {
-    String williamHill;
-    String unibet;
-    String the1Xbet;
-    String pinnacle;
-    String the888Sport;
-    String the10Bet;
-    String sbo;
+    String? williamHill;
+    String? unibet;
+    String? the1Xbet;
+    String? pinnacle;
+    String? the888Sport;
+    String? the10Bet;
+    String? sbo;
 
     DrawAway({
-        required this.williamHill,
-        required this.unibet,
-        required this.the1Xbet,
-        required this.pinnacle,
-        required this.the888Sport,
-        required this.the10Bet,
-        required this.sbo,
+        this.williamHill,
+        this.unibet,
+        this.the1Xbet,
+        this.pinnacle,
+        this.the888Sport,
+        this.the10Bet,
+        this.sbo,
     });
 
     factory DrawAway.fromJson(Map<String, dynamic> json) => DrawAway(
@@ -1473,14 +1483,14 @@ class DrawAway {
 }
 
 class FtResult {
-    Away away;
-    Away home;
-    Away draw;
+    Away? away;
+    Away? home;
+    Away? draw;
 
     FtResult({
-        required this.away,
-        required this.home,
-        required this.draw,
+        this.away,
+        this.home,
+        this.draw,
     });
 
     factory FtResult.fromJson(Map<String, dynamic> json) => FtResult(
@@ -1490,51 +1500,51 @@ class FtResult {
     );
 
     Map<String, dynamic> toJson() => {
-        "Away": away.toJson(),
-        "Home": home.toJson(),
-        "Draw": draw.toJson(),
+        "Away": away?.toJson(),
+        "Home": home?.toJson(),
+        "Draw": draw?.toJson(),
     };
 }
 
 class Away {
-    String ladbrokes;
-    String williamHill;
-    String unibet;
-    String hkjc;
-    String melBet;
-    String pinnacle;
-    String interwetten;
-    String mansionBet;
-    String betfair;
-    String dafabet;
-    String sbo;
-    String bwin;
-    String the1Xbet;
-    String the10Bet;
-    String the188Bet;
-    String cloudBet;
-    String the888Sport;
-    String bet365;
+    String? ladbrokes;
+    String? williamHill;
+    String? unibet;
+    String? hkjc;
+    String? melBet;
+    String? pinnacle;
+    String? interwetten;
+    String? mansionBet;
+    String? betfair;
+    String? dafabet;
+    String? sbo;
+    String? bwin;
+    String? the1Xbet;
+    String? the10Bet;
+    String? the188Bet;
+    String? cloudBet;
+    String? the888Sport;
+    String? bet365;
 
     Away({
-        required this.ladbrokes,
-        required this.williamHill,
-        required this.unibet,
-        required this.hkjc,
-        required this.melBet,
-        required this.pinnacle,
-        required this.interwetten,
-        required this.mansionBet,
-        required this.betfair,
-        required this.dafabet,
-        required this.sbo,
-        required this.bwin,
-        required this.the1Xbet,
-        required this.the10Bet,
-        required this.the188Bet,
-        required this.cloudBet,
-        required this.the888Sport,
-        required this.bet365,
+        this.ladbrokes,
+        this.williamHill,
+        this.unibet,
+        this.hkjc,
+        this.melBet,
+        this.pinnacle,
+        this.interwetten,
+        this.mansionBet,
+        this.betfair,
+        this.dafabet,
+        this.sbo,
+        this.bwin,
+        this.the1Xbet,
+        this.the10Bet,
+        this.the188Bet,
+        this.cloudBet,
+        this.the888Sport,
+        this.bet365,
     });
 
     factory Away.fromJson(Map<String, dynamic> json) => Away(
@@ -1581,28 +1591,28 @@ class Away {
 }
 
 class GoalsOverUnder {
-    Over25 over45;
-    Over25 over35;
-    Over25 under45;
-    Over25 under35;
-    Over over15;
-    Over25 under15;
-    Over25 over25;
-    Over25 under25;
-    Over over05;
-    Over25 under05;
+    Over25? over45;
+    Over25? over35;
+    Over25? under45;
+    Over25? under35;
+    Over? over15;
+    Over25? under15;
+    Over25? over25;
+    Over25? under25;
+    Over? over05;
+    Over25? under05;
 
     GoalsOverUnder({
-        required this.over45,
-        required this.over35,
-        required this.under45,
-        required this.under35,
-        required this.over15,
-        required this.under15,
-        required this.over25,
-        required this.under25,
-        required this.over05,
-        required this.under05,
+        this.over45,
+        this.over35,
+        this.under45,
+        this.under35,
+        this.over15,
+        this.under15,
+        this.over25,
+        this.under25,
+        this.over05,
+        this.under05,
     });
 
     factory GoalsOverUnder.fromJson(Map<String, dynamic> json) => GoalsOverUnder(
@@ -1619,29 +1629,29 @@ class GoalsOverUnder {
     );
 
     Map<String, dynamic> toJson() => {
-        "Over 4.5": over45.toJson(),
-        "Over 3.5": over35.toJson(),
-        "Under 4.5": under45.toJson(),
-        "Under 3.5": under35.toJson(),
-        "Over 1.5": over15.toJson(),
-        "Under 1.5": under15.toJson(),
-        "Over 2.5": over25.toJson(),
-        "Under 2.5": under25.toJson(),
-        "Over 0.5": over05.toJson(),
-        "Under 0.5": under05.toJson(),
+        "Over 4.5": over45?.toJson(),
+        "Over 3.5": over35?.toJson(),
+        "Under 4.5": under45?.toJson(),
+        "Under 3.5": under35?.toJson(),
+        "Over 1.5": over15?.toJson(),
+        "Under 1.5": under15?.toJson(),
+        "Over 2.5": over25?.toJson(),
+        "Under 2.5": under25?.toJson(),
+        "Over 0.5": over05?.toJson(),
+        "Under 0.5": under05?.toJson(),
     };
 }
 
 class Over {
-    String the888Sport;
-    String the1Xbet;
-    String the10Bet;
+    String? the888Sport;
+    String? the1Xbet;
+    String? the10Bet;
     String? unibet;
 
     Over({
-        required this.the888Sport,
-        required this.the1Xbet,
-        required this.the10Bet,
+        this.the888Sport,
+        this.the1Xbet,
+        this.the10Bet,
         this.unibet,
     });
 
@@ -1662,19 +1672,19 @@ class Over {
 
 class Over25 {
     String? unibet;
-    String the888Sport;
-    String the1Xbet;
+    String? the888Sport;
+    String? the1Xbet;
     String? pinnacle;
-    String the10Bet;
+    String? the10Bet;
     String? bet365;
     String? williamHill;
 
     Over25({
         this.unibet,
-        required this.the888Sport,
-        required this.the1Xbet,
+        this.the888Sport,
+        this.the1Xbet,
         this.pinnacle,
-        required this.the10Bet,
+        this.the10Bet,
         this.bet365,
         this.williamHill,
     });
@@ -1701,14 +1711,14 @@ class Over25 {
 }
 
 class HalfTimeResult {
-    AwayClass home;
-    AwayClass draw;
-    AwayClass away;
+    AwayClass? home;
+    AwayClass? draw;
+    AwayClass? away;
 
     HalfTimeResult({
-        required this.home,
-        required this.draw,
-        required this.away,
+        this.home,
+        this.draw,
+        this.away,
     });
 
     factory HalfTimeResult.fromJson(Map<String, dynamic> json) => HalfTimeResult(
@@ -1718,21 +1728,21 @@ class HalfTimeResult {
     );
 
     Map<String, dynamic> toJson() => {
-        "Home": home.toJson(),
-        "Draw": draw.toJson(),
-        "Away": away.toJson(),
+        "Home": home?.toJson(),
+        "Draw": draw?.toJson(),
+        "Away": away?.toJson(),
     };
 }
 
 class SecondHalfResult {
-    Over25 home;
-    Over25 draw;
-    Over25 away;
+    Over25? home;
+    Over25? draw;
+    Over25? away;
 
     SecondHalfResult({
-        required this.home,
-        required this.draw,
-        required this.away,
+        this.home,
+        this.draw,
+        this.away,
     });
 
     factory SecondHalfResult.fromJson(Map<String, dynamic> json) => SecondHalfResult(
@@ -1742,66 +1752,66 @@ class SecondHalfResult {
     );
 
     Map<String, dynamic> toJson() => {
-        "Home": home.toJson(),
-        "Draw": draw.toJson(),
-        "Away": away.toJson(),
+        "Home": home?.toJson(),
+        "Draw": draw?.toJson(),
+        "Away": away?.toJson(),
     };
 }
 
 class The1StHalfGoals {
-    The1StHalfGoalsOver05 under15;
-    The1StHalfGoalsOver05 over25;
-    The1StHalfGoalsOver05 under25;
-    The1StHalfGoalsOver05 over15;
-    The1StHalfGoalsOver05 over05;
-    The1StHalfGoalsOver05 under05;
+    The1StHalfGoalsOver05? under15;
+    The1StHalfGoalsOver05? over25;
+    The1StHalfGoalsOver05? under25;
+    The1StHalfGoalsOver05? over15;
+    The1StHalfGoalsOver05? over05;
+    The1StHalfGoalsOver05? under05;
 
     The1StHalfGoals({
-        required this.under15,
-        required this.over25,
-        required this.under25,
-        required this.over15,
-        required this.over05,
-        required this.under05,
+        this.under15,
+        this.over25,
+        this.under25,
+        this.over15,
+        this.over05,
+        this.under05,
     });
 
     factory The1StHalfGoals.fromJson(Map<String, dynamic> json) => The1StHalfGoals(
-        under15: The1StHalfGoalsOver05.fromJson(json["Under 1.5"]),
-        over25: The1StHalfGoalsOver05.fromJson(json["Over 2.5"]),
-        under25: The1StHalfGoalsOver05.fromJson(json["Under 2.5"]),
-        over15: The1StHalfGoalsOver05.fromJson(json["Over 1.5"]),
-        over05: The1StHalfGoalsOver05.fromJson(json["Over 0.5"]),
-        under05: The1StHalfGoalsOver05.fromJson(json["Under 0.5"]),
+        under15: The1StHalfGoalsOver05.fromJson(json["Under 1.5"] ?? {}),
+        over25: The1StHalfGoalsOver05.fromJson(json["Over 2.5"] ?? {}),
+        under25: The1StHalfGoalsOver05.fromJson(json["Under 2.5"] ?? {}),
+        over15: The1StHalfGoalsOver05.fromJson(json["Over 1.5"] ?? {}),
+        over05: The1StHalfGoalsOver05.fromJson(json["Over 0.5"] ?? {}),
+        under05: The1StHalfGoalsOver05.fromJson(json["Under 0.5"] ?? {}),
     );
 
     Map<String, dynamic> toJson() => {
-        "Under 1.5": under15.toJson(),
-        "Over 2.5": over25.toJson(),
-        "Under 2.5": under25.toJson(),
-        "Over 1.5": over15.toJson(),
-        "Over 0.5": over05.toJson(),
-        "Under 0.5": under05.toJson(),
+        "Under 1.5": under15?.toJson(),
+        "Over 2.5": over25?.toJson(),
+        "Under 2.5": under25?.toJson(),
+        "Over 1.5": over15?.toJson(),
+        "Over 0.5": over05?.toJson(),
+        "Under 0.5": under05?.toJson(),
     };
 }
 
 class The1StHalfGoalsOver05 {
-    String the1Xbet;
+    String? the1Xbet;
     String? the10Bet;
-    String williamHill;
+    String? williamHill;
     String? unibet;
 
     The1StHalfGoalsOver05({
-        required this.the1Xbet,
+        this.the1Xbet,
         this.the10Bet,
-        required this.williamHill,
+        this.williamHill,
         this.unibet,
     });
 
     factory The1StHalfGoalsOver05.fromJson(Map<String, dynamic> json) => The1StHalfGoalsOver05(
-        the1Xbet: json["1xbet"],
-        the10Bet: json["10Bet"],
-        williamHill: json["WilliamHill"],
-        unibet: json["Unibet"],
+        the1Xbet: json["1xbet"] ?? "",
+        the10Bet: json["10Bet"] ?? "",
+        williamHill: json["WilliamHill"] ?? "",
+        unibet: json["Unibet"] ?? "",
     );
 
     Map<String, dynamic> toJson() => {
@@ -1813,59 +1823,59 @@ class The1StHalfGoalsOver05 {
 }
 
 class The2NdHalfGoals {
-    The2NdHalfGoalsOver05 over25;
-    The2NdHalfGoalsOver05 under25;
-    The2NdHalfGoalsOver05 over05;
-    The2NdHalfGoalsOver05 under15;
-    The2NdHalfGoalsOver05 under05;
-    The2NdHalfGoalsOver05 over15;
+    The2NdHalfGoalsOver05? over25;
+    The2NdHalfGoalsOver05? under25;
+    The2NdHalfGoalsOver05? over05;
+    The2NdHalfGoalsOver05? under15;
+    The2NdHalfGoalsOver05? under05;
+    The2NdHalfGoalsOver05? over15;
 
     The2NdHalfGoals({
-        required this.over25,
-        required this.under25,
-        required this.over05,
-        required this.under15,
-        required this.under05,
-        required this.over15,
+        this.over25,
+        this.under25,
+        this.over05,
+        this.under15,
+        this.under05,
+        this.over15,
     });
 
     factory The2NdHalfGoals.fromJson(Map<String, dynamic> json) => The2NdHalfGoals(
-        over25: The2NdHalfGoalsOver05.fromJson(json["Over 2.5"]),
-        under25: The2NdHalfGoalsOver05.fromJson(json["Under 2.5"]),
-        over05: The2NdHalfGoalsOver05.fromJson(json["Over 0.5"]),
-        under15: The2NdHalfGoalsOver05.fromJson(json["Under 1.5"]),
-        under05: The2NdHalfGoalsOver05.fromJson(json["Under 0.5"]),
-        over15: The2NdHalfGoalsOver05.fromJson(json["Over 1.5"]),
+        over25: The2NdHalfGoalsOver05.fromJson(json["Over 2.5"] ?? ""),
+        under25: The2NdHalfGoalsOver05.fromJson(json["Under 2.5"] ?? ""),
+        over05: The2NdHalfGoalsOver05.fromJson(json["Over 0.5"] ?? ""),
+        under15: The2NdHalfGoalsOver05.fromJson(json["Under 1.5"] ?? ""),
+        under05: The2NdHalfGoalsOver05.fromJson(json["Under 0.5"] ?? ""),
+        over15: The2NdHalfGoalsOver05.fromJson(json["Over 1.5"] ?? ""),
     );
 
     Map<String, dynamic> toJson() => {
-        "Over 2.5": over25.toJson(),
-        "Under 2.5": under25.toJson(),
-        "Over 0.5": over05.toJson(),
-        "Under 1.5": under15.toJson(),
-        "Under 0.5": under05.toJson(),
-        "Over 1.5": over15.toJson(),
+        "Over 2.5": over25?.toJson(),
+        "Under 2.5": under25?.toJson(),
+        "Over 0.5": over05?.toJson(),
+        "Under 1.5": under15?.toJson(),
+        "Under 0.5": under05?.toJson(),
+        "Over 1.5": over15?.toJson(),
     };
 }
 
 class The2NdHalfGoalsOver05 {
-    String williamHill;
-    String the1Xbet;
-    String the888Sport;
+    String? williamHill;
+    String? the1Xbet;
+    String? the888Sport;
     String? unibet;
 
     The2NdHalfGoalsOver05({
-        required this.williamHill,
-        required this.the1Xbet,
-        required this.the888Sport,
+        this.williamHill,
+        this.the1Xbet,
+        this.the888Sport,
         this.unibet,
     });
 
     factory The2NdHalfGoalsOver05.fromJson(Map<String, dynamic> json) => The2NdHalfGoalsOver05(
-        williamHill: json["WilliamHill"],
-        the1Xbet: json["1xbet"],
-        the888Sport: json["888Sport"],
-        unibet: json["Unibet"],
+        williamHill: json["WilliamHill"] ?? "",
+        the1Xbet: json["1xbet"] ?? "",
+        the888Sport: json["888Sport"] ?? "",
+        unibet: json["Unibet"] ?? "",
     );
 
     Map<String, dynamic> toJson() => {
@@ -1877,62 +1887,62 @@ class The2NdHalfGoalsOver05 {
 }
 
 class Weather {
-    int id;
-    int fixtureId;
-    int venueId;
-    FeelsLike temperature;
-    FeelsLike feelsLike;
-    Wind wind;
-    String humidity;
-    int pressure;
-    String clouds;
-    String description;
-    String icon;
-    String type;
-    String metric;
+    num? id;
+    num? fixtureId;
+    num? venueId;
+    FeelsLike? temperature;
+    FeelsLike? feelsLike;
+    Wind? wind;
+    String? humidity;
+    num? pressure;
+    String? clouds;
+    String? description;
+    String? icon;
+    String? type;
+    String? metric;
     dynamic current;
 
     Weather({
-        required this.id,
-        required this.fixtureId,
-        required this.venueId,
-        required this.temperature,
-        required this.feelsLike,
-        required this.wind,
-        required this.humidity,
-        required this.pressure,
-        required this.clouds,
-        required this.description,
-        required this.icon,
-        required this.type,
-        required this.metric,
-        required this.current,
+        this.id,
+        this.fixtureId,
+        this.venueId,
+        this.temperature,
+        this.feelsLike,
+        this.wind,
+        this.humidity,
+        this.pressure,
+        this.clouds,
+        this.description,
+        this.icon,
+        this.type,
+        this.metric,
+        this.current,
     });
 
     factory Weather.fromJson(Map<String, dynamic> json) => Weather(
         id: json["id"],
-        fixtureId: json["fixture_id"],
-        venueId: json["venue_id"],
-        temperature: FeelsLike.fromJson(json["temperature"]),
-        feelsLike: FeelsLike.fromJson(json["feels_like"]),
-        wind: Wind.fromJson(json["wind"]),
-        humidity: json["humidity"],
-        pressure: json["pressure"],
-        clouds: json["clouds"],
-        description: json["description"],
-        icon: json["icon"],
-        type: json["type"],
-        metric: json["metric"],
-        current: json["current"],
+        fixtureId: json["fixture_id"] ?? "",
+        venueId: json["venue_id"] ?? "",
+        temperature: FeelsLike.fromJson(json["temperature"] ?? {}),
+        feelsLike: FeelsLike.fromJson(json["feels_like"] ?? {}),
+        wind: Wind.fromJson(json["wind"] ?? {}),
+        humidity: json["humidity"] ?? "",
+        pressure: json["pressure"] ?? "",
+        clouds: json["clouds"] ?? "",
+        description: json["description"] ?? "" ,
+        icon: json["icon"] ?? "",
+        type: json["type"] ?? "",
+        metric: json["metric"] ?? "",
+        current: json["current"] ?? "",
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "fixture_id": fixtureId,
         "venue_id": venueId,
-        "temperature": temperature.toJson(),
-        "feels_like": feelsLike.toJson(),
-        "wind": wind.toJson(),
+        "temperature": temperature?.toJson(),
+        "feels_like": feelsLike?.toJson(),
+        "wind": wind?.toJson(),
         "humidity": humidity,
         "pressure": pressure,
         "clouds": clouds,
@@ -1945,23 +1955,23 @@ class Weather {
 }
 
 class FeelsLike {
-    double day;
-    double morning;
-    double evening;
-    double night;
+    double? day;
+    double? morning;
+    double? evening;
+    double? night;
 
     FeelsLike({
-        required this.day,
-        required this.morning,
-        required this.evening,
-        required this.night,
+        this.day,
+        this.morning,
+        this.evening,
+        this.night,
     });
 
     factory FeelsLike.fromJson(Map<String, dynamic> json) => FeelsLike(
-        day: json["day"]?.toDouble(),
-        morning: json["morning"]?.toDouble(),
-        evening: json["evening"]?.toDouble(),
-        night: json["night"]?.toDouble(),
+        day: json["day"]?.toDouble() ?? 0.0,
+        morning: json["morning"]?.toDouble() ?? 0.0,
+        evening: json["evening"]?.toDouble() ?? 0.0,
+        night: json["night"]?.toDouble() ?? 0.0,
     );
 
     Map<String, dynamic> toJson() => {
@@ -1973,17 +1983,17 @@ class FeelsLike {
 }
 
 class Wind {
-    double speed;
-    int direction;
+    double? speed;
+    num? direction;
 
     Wind({
-        required this.speed,
-        required this.direction,
+        this.speed,
+        this.direction,
     });
 
     factory Wind.fromJson(Map<String, dynamic> json) => Wind(
-        speed: json["speed"]?.toDouble(),
-        direction: json["direction"],
+        speed: json["speed"]?.toDouble() ?? 0.0,
+        direction: json["direction"] ?? 0,
     );
 
     Map<String, dynamic> toJson() => {
@@ -1993,20 +2003,20 @@ class Wind {
 }
 
 class Metadata {
-    String requestLimit;
-    String requestRemaining;
-    String requestResetMessage;
+    String? requestLimit;
+    String? requestRemaining;
+    String? requestResetMessage;
 
     Metadata({
-        required this.requestLimit,
-        required this.requestRemaining,
-        required this.requestResetMessage,
+        this.requestLimit,
+        this.requestRemaining,
+        this.requestResetMessage,
     });
 
     factory Metadata.fromJson(Map<String, dynamic> json) => Metadata(
-        requestLimit: json["request_limit"],
-        requestRemaining: json["request_remaining"],
-        requestResetMessage: json["request_reset_message"],
+        requestLimit: json["request_limit"] ?? "",
+        requestRemaining: json["request_remaining"] ?? "",
+        requestResetMessage: json["request_reset_message"] ?? "",
     );
 
     Map<String, dynamic> toJson() => {
@@ -2017,16 +2027,16 @@ class Metadata {
 }
 
 class Pager {
-    int currentPage;
-    int maxPage;
-    int resultsPerPage;
-    int totalResults;
+    num? currentPage;
+    num? maxPage;
+    num? resultsPerPage;
+    num? totalResults;
 
     Pager({
-        required this.currentPage,
-        required this.maxPage,
-        required this.resultsPerPage,
-        required this.totalResults,
+        this.currentPage,
+        this.maxPage,
+        this.resultsPerPage,
+        this.totalResults,
     });
 
     factory Pager.fromJson(Map<String, dynamic> json) => Pager(
@@ -2042,4 +2052,26 @@ class Pager {
         "results_per_page": resultsPerPage,
         "total_results": totalResults,
     };
+}
+
+T? _parseMap<T>(dynamic value, T Function(Map<String, dynamic>) parser) {
+  if (value is Map<String, dynamic>) return parser(value);
+  return null;
+}
+
+List<dynamic> _toList(dynamic value) => value is List ? value : <dynamic>[];
+
+List<String> _toStringList(dynamic value) =>
+    value is List ? value.map((e) => e?.toString() ?? "").toList() : <String>[];
+
+Map<String, int> _parseIntMap(dynamic value) {
+  if (value is Map) {
+    return value.map((key, v) {
+      if (v is int) return MapEntry(key.toString(), v);
+      if (v is num) return MapEntry(key.toString(), v.toInt());
+      // if it's something else (string/null), treat as 0 or skip
+      return MapEntry(key.toString(), 0);
+    });
+  }
+  return <String, int>{};
 }

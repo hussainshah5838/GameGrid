@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../constants/app_colors.dart';
+import 'common_shimmer_widget.dart';
 
 class CommonImageView extends StatelessWidget {
 // ignore_for_file: must_be_immutable
@@ -67,18 +68,12 @@ class CommonImageView extends StatelessWidget {
           width: width,
           fit: fit,
           imageUrl: url!,
-          placeholder: (context, url) => Container(
-            height: 23,
-            width: 23,
-            child: Center(
-              child: SizedBox(
-                height: 20,width: 20,
-                child: CircularProgressIndicator(
-                  color: kSecondaryColor,
-                  backgroundColor: Colors.grey.shade100,
-                ),
-              ),
-            ),
+          placeholder: (context, url) => CommonShimmer(
+            height: height ?? 60,
+            width: width ?? 60,
+            radius: radius ?? 0.0,
+            baseColor: Colors.grey.shade300,
+            highlightColor: kSecondaryColor,
           ),
           errorWidget: (context, url, error) => Image.asset(
             placeHolder,
