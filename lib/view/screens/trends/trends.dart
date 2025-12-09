@@ -3,12 +3,14 @@ import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_sizes.dart';
 import 'package:game_grid/main.dart';
+import 'package:game_grid/controllers/trends_controller.dart';
 import 'package:game_grid/view/screens/profile/profile.dart';
 import 'package:game_grid/view/screens/trends/players.dart';
 import 'package:game_grid/view/screens/trends/teams.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
@@ -99,7 +101,6 @@ class Trends extends StatelessWidget {
                         color: kQuaternaryColor,
                         fontSize: 14,
                       ),
-
                       tabs: tabViews
                           .map((e) => Tab(text: e, height: 36))
                           .toList(),
@@ -138,6 +139,14 @@ class _PlayersAndTeams extends StatefulWidget {
 class _PlayersAndTeamsState extends State<_PlayersAndTeams> {
   int selectedIndex = 0;
   final List<String> tabs = ['Players', 'Teams'];
+  late final TrendsController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(TrendsController());
+    controller.fetchLeagues();
+  }
 
   @override
   Widget build(BuildContext context) {

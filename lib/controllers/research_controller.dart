@@ -13,6 +13,7 @@ class ResearchController extends GetxController {
   final Rxn<MatchDetailsModel> matchDetails = Rxn<MatchDetailsModel>();
   final RxBool isDetailsLoading = false.obs;
   final RxString detailsError = ''.obs;
+  final RxSet<int> favoriteMatchIds = <int>{}.obs;
 
   @override
   void onInit() async {
@@ -54,4 +55,18 @@ class ResearchController extends GetxController {
       isDetailsLoading.value = false;
     }
   }
+
+  bool isFavorite(int matchId) => favoriteMatchIds.contains(matchId);
+
+  void toggleFavorite(Datum match) {
+    if (favoriteMatchIds.contains(match.id)) {
+      favoriteMatchIds.remove(match.id);
+    } else {
+      favoriteMatchIds.add(match.id);
+    }
+    favoriteMatchIds.refresh();
+  }
+
+  List<Datum> get favoriteMatches =>
+      matches.where((m) => favoriteMatchIds.contains(m.id)).toList();
 }

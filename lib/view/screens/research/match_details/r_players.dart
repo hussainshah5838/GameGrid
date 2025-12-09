@@ -4,7 +4,6 @@ import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
 import 'package:game_grid/model/match_details_model.dart';
-import 'package:game_grid/view/screens/research/match_details/player_details.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
@@ -20,7 +19,8 @@ class RPlayers extends StatefulWidget {
 class _RPlayersState extends State<RPlayers> {
   int selectedIndex = 0;
 
-  static const String _imageBase = 'https://football-data-api.com/';
+  // FootyStats CDN host for logo paths like "teams/foo.png"
+  static const String _imageBase = 'https://cdn.footystats.org/img/';
 
   String _resolveImageUrl(String? url, {String? fallback}) {
     final primary = (url ?? '').trim();
@@ -169,7 +169,7 @@ class _RPlayersState extends State<RPlayers> {
                   final player = players[index];
                   return GestureDetector(
                     onTap: () {
-                      Get.to(() => PlayerDetails());
+                      // Get.to(() => PlayerDetails());
                     },
                     child: Container(
                       decoration: BoxDecoration(

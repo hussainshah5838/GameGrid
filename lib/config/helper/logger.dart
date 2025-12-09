@@ -1,9 +1,8 @@
+import 'package:logger/logger.dart';
 
+final Logger _logger = Logger();
 
-import 'package:logger/web.dart';
-
-var logger = Logger();
-
-prettyLogger(data){
-  logger.d(data);
+void prettyLogger(dynamic data) {
+  final msg = data?.toString() ?? 'null';
+  _logger.d(msg);
 }

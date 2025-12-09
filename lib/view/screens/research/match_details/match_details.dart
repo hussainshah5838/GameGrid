@@ -16,7 +16,8 @@ import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-const String _imageBase = 'https://football-data-api.com/';
+// FootyStats CDN host for logo paths like "teams/foo.png"
+const String _imageBase = 'https://cdn.footystats.org/img/';
 
 String _resolveImageUrl(String? url, {String? fallback}) {
   final primary = (url ?? '').trim();
@@ -358,7 +359,6 @@ class _TeamsState extends State<_Teams> {
     ];
     final Map<String, int> previousResults = details.h2H?.previousMatchesResults ?? {};
     final Map<String, int> bettingStats = details.h2H?.bettingStats ?? {};
-    final int totalMatches = previousResults.values.fold<int>(0, (a, b) => a + (b));
     final int selectedWins = _extractFromMap(
       previousResults,
       _isAwaySelected
@@ -373,9 +373,13 @@ class _TeamsState extends State<_Teams> {
     );
     final int draws = _extractFromMap(previousResults, ['draws', 'draw']);
 
-    final double winPercent = _percent(selectedWins, totalMatches);
-    final double drawPercent = _percent(draws, totalMatches);
-    final double lossPercent = _percent(opponentWins, totalMatches);
+    final int totalMatches = selectedWins + opponentWins + draws;
+    final double winPercent = totalMatches == 0 ? 0 : _percent(selectedWins, totalMatches);
+    final double drawPercent = totalMatches == 0 ? 0 : _percent(draws, totalMatches);
+    final double lossPercent = totalMatches == 0
+        ? 0
+        : (100 - winPercent - drawPercent).clamp(0, 100);
+    final double drawRangeEnd = (winPercent + drawPercent).clamp(0, 100);
 
     final List<Map<String, String>> statsRows = [
       {
@@ -713,7 +717,7 @@ class _TeamsState extends State<_Teams> {
                       startWidth: 32,
                       endWidth: 32,
                       startValue: 0,
-                      endValue: winPercent,
+                      endValue: winPercent.clamp(0, 100),
                       child: Align(
                         alignment: Alignment.center,
                         child: MyText(
@@ -730,7 +734,7 @@ class _TeamsState extends State<_Teams> {
                       startWidth: 32,
                       endWidth: 32,
                       startValue: winPercent,
-                      endValue: winPercent + drawPercent,
+                      endValue: drawRangeEnd,
                       child: Align(
                         alignment: Alignment.center,
                         child: MyText(
@@ -746,8 +750,8 @@ class _TeamsState extends State<_Teams> {
                     LinearGaugeRange(
                       startWidth: 32,
                       endWidth: 32,
-                      startValue: winPercent + drawPercent,
-                      endValue: (winPercent + drawPercent + lossPercent).clamp(0, 100),
+                      startValue: drawRangeEnd,
+                      endValue: 100,
                       child: Align(
                         alignment: Alignment.center,
                         child: MyText(
@@ -779,7 +783,7 @@ class _TeamsState extends State<_Teams> {
                       startWidth: 20,
                       endWidth: 20,
                       startValue: 0,
-                      endValue: winPercent,
+                      endValue: winPercent.clamp(0, 100),
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: MyText(
@@ -796,7 +800,7 @@ class _TeamsState extends State<_Teams> {
                       startWidth: 20,
                       endWidth: 20,
                       startValue: winPercent,
-                      endValue: winPercent + drawPercent,
+                      endValue: drawRangeEnd,
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: MyText(
@@ -812,8 +816,8 @@ class _TeamsState extends State<_Teams> {
                     LinearGaugeRange(
                       startWidth: 20,
                       endWidth: 20,
-                      startValue: winPercent + drawPercent,
-                      endValue: (winPercent + drawPercent + lossPercent).clamp(0, 100),
+                      startValue: drawRangeEnd,
+                      endValue: 100,
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: MyText(

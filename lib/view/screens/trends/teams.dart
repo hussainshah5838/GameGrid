@@ -3,168 +3,287 @@ import 'package:flutter/material.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/trends_controller.dart';
+import 'package:game_grid/model/league_team_model.dart';
+import 'package:game_grid/model/team_league_model.dart';
+import 'package:game_grid/view/widget/common_image_view_widget.dart';
 import 'package:game_grid/view/widget/custom_check_box_widget.dart';
 import 'package:game_grid/view/widget/custom_drop_down_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
 
-class Teams extends StatelessWidget {
+class Teams extends StatefulWidget {
   const Teams({super.key});
 
   @override
+  State<Teams> createState() => _TeamsState();
+}
+
+class _TeamsState extends State<Teams> {
+  late final TrendsController controller;
+  final List<String> labels = const [
+    'H2H',
+    'L5',
+    'L10',
+    'L20',
+    '24-25',
+    '23-25'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<TrendsController>();
+  }
+
+  String _formatPercent(num? value) {
+    if (value == null) return '--';
+    return '${value.toString()}%';
+  }
+
+  Color _valueColor(num? value) {
+    if (value == null) return kQuaternaryColor;
+    if (value >= 70) return kGreenColor;
+    if (value >= 40) return kYellowColor2;
+    return kRedColor2;
+  }
+
+  List<num?> _extractStats(Data data) {
+    return [
+      data.homeWinPercentage,
+      data.seasonOver05PercentageOverall,
+      data.seasonOver15PercentageOverall,
+      data.seasonOver25PercentageOverall,
+      data.seasonOver35PercentageOverall,
+      data.seasonOver45PercentageOverall,
+    ];
+  }
+
+  String _safeLabel(Data? league, {required String? fallback}) {
+    if (league == null) return fallback ?? '--';
+    return dbEnglishNameValues.reverse[league.englishName] ??
+        league.shortHand ??
+        fallback ??
+        '--';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      padding: AppSizes.HORIZONTAL,
-      physics: BouncingScrollPhysics(),
-      children: [
-        Row(
-          spacing: 8,
-          children: [
-            Expanded(
-              child: MyDropDown(
-                havePrefix: false,
-                prefixIcon: '',
-                hint: 'Last 5 match...',
-                items: ['Last 5 match...'],
-                onChanged: (value) {},
-                selectedValue: 'Last 5 match...',
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (controller.error.value.isNotEmpty) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MyText(
+                text: controller.error.value,
+                size: 13,
+                color: kQuaternaryColor,
+                weight: FontWeight.w600,
+                textAlign: TextAlign.center,
               ),
-            ),
-            Expanded(
-              child: MyDropDown(
-                havePrefix: false,
-                prefixIcon: '',
-                hint: 'Select',
-                items: ['Select'],
-                onChanged: (value) {},
-                selectedValue: 'Select',
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  if (controller.selectedSeasonId.value.isNotEmpty) {
+                    controller
+                        .fetchLeagueSeason(controller.selectedSeasonId.value);
+                  } else {
+                    controller.fetchLeagues();
+                  }
+                },
+                child: const Text('Retry'),
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Get.bottomSheet(_Filter(), isScrollControlled: true);
-              },
-              child: Image.asset(Assets.imagesFilters, height: 36),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        ListView.separated(
-          itemCount: 10,
-          padding: AppSizes.ZERO,
-          physics: BouncingScrollPhysics(),
-          shrinkWrap: true,
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(height: 12);
-          },
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: kFillColor,
-                gradient: LinearGradient(
-                  stops: [0.1, 0.9],
-                  colors: index.isOdd
-                      ? [
-                          kRedColor2.withValues(alpha: 0),
-                          kRedColor2.withValues(alpha: 0.2),
-                        ]
-                      : [
-                          kGreenColor2.withValues(alpha: 0),
-                          kGreenColor2.withValues(alpha: 0.2),
-                        ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+            ],
+          ),
+        );
+      }
+      final league = controller.leagueDetails.value?.data;
+      final leagues = controller.leagues;
+      final selectedLeague = controller.selectedLeague.value;
+      final seasons = selectedLeague?.seasons ?? [];
+      final selectedSeasonId = controller.selectedSeasonId.value;
+      final List<LeagueTeam> teams =
+          controller.leagueTeams.cast<LeagueTeam>().toList();
+
+      if (league == null && controller.error.isEmpty) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (selectedLeague == null || seasons.isEmpty) {
+        return Center(
+          child: MyText(
+            text: 'No leagues found.',
+            size: 14,
+            color: kQuaternaryColor,
+            weight: FontWeight.w600,
+          ),
+        );
+      }
+
+      final statValues =
+          league != null ? _extractStats(league) : List<num?>.filled(6, 0);
+
+      return ListView(
+        shrinkWrap: true,
+        padding: AppSizes.HORIZONTAL,
+        physics: BouncingScrollPhysics(),
+        children: [
+          Row(
+            spacing: 8,
+            children: [
+              Expanded(
+                child: MyDropDown(
+                  havePrefix: false,
+                  prefixIcon: '',
+                  hint: selectedLeague.name ?? 'League',
+                  items: leagues.map((e) => e.name ?? '--').toList(),
+                  onChanged: (value) {
+                    final match =
+                        leagues.firstWhereOrNull((e) => e.name == value);
+                    if (match != null) {
+                      controller.selectLeague(match);
+                    }
+                  },
+                  selectedValue: selectedLeague.name ?? '',
                 ),
-                border: Border.all(width: 1.0, color: kBorderColor),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(Assets.imagesLy, height: 24),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            MyText(
-                              text: 'FC Barcelona',
-                              size: 13,
-                              weight: FontWeight.w700,
+              Expanded(
+                child: MyDropDown(
+                  havePrefix: false,
+                  prefixIcon: '',
+                  hint: selectedSeasonId.isEmpty
+                      ? 'Season'
+                      : seasons
+                              .firstWhereOrNull(
+                                  (s) => s.id?.toString() == selectedSeasonId)
+                              ?.year ??
+                          selectedSeasonId,
+                  items: seasons
+                      .map((e) => e.year ?? e.id?.toString() ?? '--')
+                      .toList(),
+                  onChanged: (value) {
+                    final season = seasons.firstWhereOrNull(
+                      (s) => s.year == value || s.id?.toString() == value,
+                    );
+                    if (season != null) {
+                      controller.selectLeague(selectedLeague,
+                          seasonIndex: seasons.indexOf(season));
+                    }
+                  },
+                  selectedValue: seasons
+                          .firstWhereOrNull(
+                              (s) => s.id?.toString() == selectedSeasonId)
+                          ?.year ??
+                      (selectedSeasonId.isNotEmpty ? selectedSeasonId : ''),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.bottomSheet(_Filter(), isScrollControlled: true);
+                },
+                child: Image.asset(Assets.imagesFilters, height: 36),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: kFillColor,
+              gradient: LinearGradient(
+                stops: [0.1, 0.9],
+                colors: [
+                  kSecondaryColor.withValues(alpha: 0),
+                  kSecondaryColor.withValues(alpha: 0.12),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              border: Border.all(width: 1.0, color: kBorderColor),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Image.asset(Assets.imagesLy, height: 24),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          MyText(
+                            text: _safeLabel(
+                              league,
+                              fallback: selectedLeague.leagueName ??
+                                  selectedLeague.name,
                             ),
-                            MyText(
-                              paddingTop: 2,
-                              text: 'London, England',
-                              size: 11,
-                              weight: FontWeight.w500,
-                              color: kQuaternaryColor,
-                            ),
-                          ],
-                        ),
+                            size: 13,
+                            weight: FontWeight.w700,
+                          ),
+                          MyText(
+                            paddingTop: 2,
+                            text: league?.country ??
+                                selectedLeague.country ??
+                                '--',
+                            size: 11,
+                            weight: FontWeight.w500,
+                            color: kQuaternaryColor,
+                          ),
+                        ],
                       ),
-                      SizedBox(
-                        width: 92,
-                        child: MyDropDown(
-                          prefixIcon: Assets.imagesShield,
-                          hint: '-143',
-                          items: ['-143'],
-                          onChanged: (value) {},
-                          selectedValue: '-143',
-                        ),
+                    ),
+                    SizedBox(
+                      width: 92,
+                      child: MyDropDown(
+                        prefixIcon: Assets.imagesShield,
+                        hint: league?.shortHand ??
+                            selectedLeague.leagueName ??
+                            '--',
+                        items: [
+                          league?.shortHand ?? selectedLeague.leagueName ?? '--'
+                        ],
+                        onChanged: (value) {},
+                        selectedValue: league?.shortHand ??
+                            selectedLeague.leagueName ??
+                            '--',
                       ),
-                    ],
-                  ),
-                  Container(
-                    height: 1,
-                    color: kBorderColor,
-                    margin: EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (var i = 0; i < 6; i++) ...[
+                    ),
+                  ],
+                ),
+                Container(
+                  height: 1,
+                  color: kBorderColor,
+                  margin: EdgeInsets.symmetric(vertical: 12),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(labels.length, (i) {
+                    final value = statValues[i];
+                    return Row(
+                      children: [
                         Column(
                           children: [
                             MyText(
-                              text: [
-                                'H2H',
-                                'L5',
-                                'L10',
-                                'L20',
-                                '24-25',
-                                '23-25',
-                              ][i],
+                              text: labels[i],
                               size: 10,
                               weight: FontWeight.w500,
                               color: kQuaternaryColor,
                               paddingBottom: 4,
                             ),
                             MyText(
-                              text: [
-                                '67%',
-                                '62%',
-                                '90%',
-                                '60%',
-                                '66%',
-                                '25%',
-                              ][i],
+                              text: _formatPercent(value),
                               size: 12,
-                              color: [
-                                kGreenColor,
-                                kYellowColor2,
-                                kGreenColor,
-                                kYellowColor2,
-                                kYellowColor2,
-                                kRedColor2,
-                              ][i],
+                              color: _valueColor(value),
                               weight: FontWeight.w500,
                             ),
                           ],
                         ),
-                        if (i < 5)
+                        if (i < labels.length - 1)
                           Container(
                             width: 1,
                             height: 28,
@@ -172,16 +291,66 @@ class Teams extends StatelessWidget {
                             margin: EdgeInsets.symmetric(horizontal: 8),
                           ),
                       ],
-                    ],
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+          if (teams.isNotEmpty) ...[
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: kFillColor,
+                border: Border.all(width: 1.0, color: kBorderColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MyText(
+                    text: 'Teams',
+                    size: 14,
+                    weight: FontWeight.w700,
+                    paddingBottom: 8,
                   ),
+                  ...teams.take(8).map(
+                        (t) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              CommonImageView(
+                                url: t.logo ?? '',
+                                height: 28,
+                                width: 28,
+                                radius: 14,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: MyText(
+                                  text: t.name ?? '--',
+                                  size: 13,
+                                  weight: FontWeight.w600,
+                                ),
+                              ),
+                              MyText(
+                                text: t.country ?? '',
+                                size: 11,
+                                color: kQuaternaryColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                 ],
               ),
-            );
-          },
-        ),
-        SizedBox(height: 40),
-      ],
-    );
+            ),
+          ],
+          SizedBox(height: 40),
+        ],
+      );
+    });
   }
 }
 
@@ -302,7 +471,6 @@ class _FilterState extends State<_Filter> {
                     },
                   ),
                 ),
-
                 _FilterTile(
                   title: 'Shots on Target',
                   totalCounter: '${selectedShots.length}',
@@ -333,7 +501,6 @@ class _FilterState extends State<_Filter> {
                     },
                   ),
                 ),
-
                 _FilterTile(
                   title: 'Shots on Target',
                   totalCounter: '${selectedShots2.length}',

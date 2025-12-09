@@ -15,6 +15,7 @@ import 'package:game_grid/view/widget/favroite_widget.dart';
 import 'package:game_grid/view/widget/match_title_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class Research extends StatefulWidget {
   const Research({super.key});
@@ -169,18 +170,10 @@ class _Football extends StatefulWidget {
 
 class _FootballState extends State<_Football> {
   int selectedIndex = 3;
-  // Use public host for images; API returns relative paths like "teams/foo.png"
-  static const String _imageBase = 'https://football-data-api.com/';
+  // FootyStats CDN host for logo paths like "teams/foo.png"
+  static const String _imageBase = 'https://cdn.footystats.org/img/';
   late final ResearchController controller;
-  final List<String> tabs = [
-    'May 14',
-    'May 15',
-    'Yesterday',
-    'Today',
-    'Tomorrow',
-    'May 19',
-    'May 20',
-  ];
+  DateTime? selectedDate;
 
   @override
   void initState() {
@@ -207,6 +200,32 @@ class _FootballState extends State<_Football> {
       }
 
       final matches = controller.matches;
+      final availableDates = matches
+          .map((m) => DateTime.fromMillisecondsSinceEpoch(m.dateUnix * 1000, isUtc: true).toLocal())
+          .map((d) => DateTime(d.year, d.month, d.day))
+          .toSet()
+          .toList()
+        ..sort((a, b) => a.compareTo(b));
+      selectedDate ??= availableDates.isNotEmpty ? availableDates.first : null;
+      if (availableDates.isNotEmpty && !availableDates.contains(selectedDate)) {
+        selectedDate = availableDates.first;
+      }
+      if (availableDates.isNotEmpty && selectedIndex >= availableDates.length) {
+        selectedIndex = 0;
+      }
+      final currentSelectedIndex =
+          selectedDate == null ? -1 : availableDates.indexOf(selectedDate!);
+      final filteredMatches = selectedDate == null
+          ? matches
+          : matches
+              .where((m) {
+                final date =
+                    DateTime.fromMillisecondsSinceEpoch(m.dateUnix * 1000, isUtc: true).toLocal();
+                final localDate = DateTime(date.year, date.month, date.day);
+                return localDate == selectedDate;
+              })
+              .toList();
+      final favoriteMatches = controller.favoriteMatches;
 
       if (matches.isEmpty) {
         return const Center(child: Text('No matches found.'));
@@ -217,49 +236,53 @@ class _FootballState extends State<_Football> {
         padding: AppSizes.ZERO,
         physics: const BouncingScrollPhysics(),
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            height: 48,
-            decoration: BoxDecoration(
-              color: kFillColor,
-              border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
-            ),
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: tabs.length,
-              padding: AppSizes.HORIZONTAL,
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final isSelected = selectedIndex == index;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                      // Hook: re-fetch data per tab if needed (date filters, etc.)
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    height: Get.height,
-                    decoration: BoxDecoration(
-                      color: isSelected ? kSecondaryColor : Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      tabs[index],
-                      style: TextStyle(
-                        fontFamily: AppFonts.Satoshi,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? kPrimaryColor : kQuaternaryColor,
-                        fontSize: 12,
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              height: 48,
+              decoration: BoxDecoration(
+                color: kFillColor,
+                border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
+              ),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: availableDates.length,
+                padding: AppSizes.HORIZONTAL,
+                physics: const BouncingScrollPhysics(),
+                shrinkWrap: true,
+                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final isSelected = currentSelectedIndex == index;
+                  final date = availableDates[index];
+                  final label = _formatDateLabel(date);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                        selectedDate = date;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      height: Get.height,
+                      decoration: BoxDecoration(
+                        color: isSelected ? kSecondaryColor : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontFamily: AppFonts.Satoshi,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? kPrimaryColor : kQuaternaryColor,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           Padding(
@@ -269,32 +292,55 @@ class _FootballState extends State<_Football> {
               children: [
                 Favorites(
                   title: 'Favorites',
-                  totalCounter: '2',
-                  child: ListView.separated(
-                    itemCount: 2,
-                    shrinkWrap: true,
-                    padding: AppSizes.ZERO,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return MatchesTile(
-                        isActive: true,
-                        onTap: () {},
-                        time: '09:45 am',
-                        team1: 'FC Barcelona',
-                        team2: 'Real Madrid',
-                        team1Logo: Assets.imagesLy,
-                        team2Logo: Assets.imagesLy,
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(height: 16);
-                    },
-                  ),
+                  totalCounter: favoriteMatches.length.toString(),
+                  child: favoriteMatches.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Center(
+                            child: MyText(
+                              text: 'No favorite matches yet.',
+                              size: 12,
+                              weight: FontWeight.w500,
+                              color: kQuaternaryColor,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: favoriteMatches.length,
+                          shrinkWrap: true,
+                          padding: AppSizes.ZERO,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final match = favoriteMatches[index];
+                            return MatchesTile(
+                              isActive: match.status == "Live",
+                              isFavorite: true,
+                              onTap: () => Get.to(
+                                () => MatchDetails(matchId: match.id.toString()),
+                              ),
+                              onFavoriteTap: () => controller.toggleFavorite(match),
+                              time: match.stadiumName,
+                              team1: match.awayName,
+                              team2: match.homeName,
+                              team1Logo: _resolveImageUrl(
+                                match.awayImage,
+                                fallback: match.awayUrl,
+                              ),
+                              team2Logo: _resolveImageUrl(
+                                match.homeImage,
+                                fallback: match.homeUrl,
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(height: 16);
+                          },
+                        ),
                 ),
                 MyText(
                   paddingTop: 12,
                   paddingBottom: 8,
-                  text: '${matches.length} Matches found',
+                  text: '${filteredMatches.length} Matches found',
                   size: 12,
                   weight: FontWeight.w500,
                   color: kQuaternaryColor,
@@ -302,21 +348,24 @@ class _FootballState extends State<_Football> {
                 ListView.separated(
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   padding: AppSizes.ZERO,
-                  itemCount: matches.length,
+                  itemCount: filteredMatches.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(), // Parent ListView scrolls
                   itemBuilder: (context, matchIndex) {
-                    final match = matches[matchIndex];
+                    final match = filteredMatches[matchIndex];
 
+                    final isFavorite = controller.isFavorite(match.id);
                     return Country(
-                      countryImage: match.awayImage,
+                      countryImage:_resolveImageUrl( match.awayImage),
                       title: match.awayName,
                       totalCounter: matches.length.toString(),
                       child: MatchesTile(
                         isActive: match.status == "Live",
+                        isFavorite: isFavorite,
                         onTap: () => Get.to(
                           () => MatchDetails(matchId: match.id.toString()),
                         ),
+                        onFavoriteTap: () => controller.toggleFavorite(match),
                         time: match.stadiumName,
                         team1: match.awayName,
                         team2: match.homeName,
@@ -348,5 +397,17 @@ class _FootballState extends State<_Football> {
     if (url.isEmpty && (fallback == null || fallback.isEmpty)) return '';
     final trimmed = url.startsWith('/') ? url.substring(1) : url;
     return '$_imageBase$trimmed';
+  }
+
+  String _formatDateLabel(DateTime date) {
+    final today = DateTime.now();
+    final normalizedToday = DateTime(today.year, today.month, today.day);
+    final normalizedTarget = DateTime(date.year, date.month, date.day);
+    final diff = normalizedTarget.difference(normalizedToday).inDays;
+
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Tomorrow';
+    if (diff == -1) return 'Yesterday';
+    return DateFormat('MMM d').format(normalizedTarget);
   }
 }

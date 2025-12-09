@@ -17,6 +17,8 @@ class MatchesTile extends StatelessWidget {
     required this.team2,
     required this.team1Logo,
     required this.team2Logo,
+    this.isFavorite = false,
+    this.onFavoriteTap,
   });
   final bool isActive;
   final VoidCallback onTap;
@@ -25,6 +27,8 @@ class MatchesTile extends StatelessWidget {
   final String team2;
   final String team1Logo;
   final String team2Logo;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +87,19 @@ class MatchesTile extends StatelessWidget {
               margin: EdgeInsets.symmetric(horizontal: 10),
             ),
             GestureDetector(
-              // onTap: onTap,
-              child: Image.asset(
-                isActive
-                    ? Assets.imagesNotificationFilled
-                    : Assets.imagesNotificationEmpty,
-                height: 20,
-              ),
+              onTap: onFavoriteTap ?? onTap,
+              child: onFavoriteTap != null
+                  ? Icon(
+                      isFavorite ? Icons.star : Icons.star_border,
+                      color: isFavorite ? kSecondaryColor : kQuaternaryColor,
+                      size: 22,
+                    )
+                  : Image.asset(
+                      isActive
+                          ? Assets.imagesNotificationFilled
+                          : Assets.imagesNotificationEmpty,
+                      height: 20,
+                    ),
             ),
           ],
         ),
