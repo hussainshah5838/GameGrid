@@ -170,7 +170,17 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 8,
               children: [
-                Image.asset(Assets.imagesGoogle, height: 48),
+                Obx(
+                  () => GestureDetector(
+                    onTap: authController.isLoading.value
+                        ? null
+                        : () => authController.signInWithGoogle(),
+                    child: Opacity(
+                      opacity: authController.isLoading.value ? 0.6 : 1,
+                      child: Image.asset(Assets.imagesGoogle, height: 48),
+                    ),
+                  ),
+                ),
                 Image.asset(Assets.imagesApple, height: 48),
               ],
             ),

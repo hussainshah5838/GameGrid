@@ -1,26 +1,51 @@
 {
   "project_info": {
-    "project_number": "1033223304475",
-    "project_id": "gamegrid-5cf89",
-    "storage_bucket": "gamegrid-5cf89.firebasestorage.app"
+    "project_number": "949319954406",
+    "project_id": "game-grid-dcc11",
+    "storage_bucket": "game-grid-dcc11.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1033223304475:android:683f2870d6be4d2cc04fbe",
+        "mobilesdk_app_id": "1:949319954406:android:d1a33802e3ccbe7303b027",
         "android_client_info": {
           "package_name": "com.example.game_grid"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "949319954406-fr6u3dl5k06k44733a2t5c8ni5o7f32i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.game_grid",
+            "certificate_hash": "9992b76174ccf29e9cf2610fb722811f0f36b687"
+          }
+        },
+        {
+          "client_id": "949319954406-34k0vep71kp5ia5dn9e7kvrt7856elq5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBsHWib_vZ6fpGlx6Xel7mss-hQDvEUMzw"
+          "current_key": "AIzaSyAlJfImpW6c_lhcGJSKrlpQNNROqBZBtqI"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "949319954406-34k0vep71kp5ia5dn9e7kvrt7856elq5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "949319954406-uq45gvk35j9dg2qjcq6p5il51tpe76o5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gameGrid"
+              }
+            }
+          ]
         }
       }
     }

@@ -20,6 +20,13 @@ class TrendsController extends GetxController {
   final RxString selectedSeasonId = ''.obs;
   final RxList<LeagueTeam> leagueTeams = <LeagueTeam>[].obs;
 
+  num? _asNum(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value);
+    return null;
+  }
+
   Future<void> fetchLeagues({String? country}) async {
     error.value = '';
     try {
@@ -31,7 +38,7 @@ class TrendsController extends GetxController {
         return;
       }
 
-      leagues.assignAll(result.data!);
+      leagues.assignAll(result.data);
 
       if (leagues.isNotEmpty) {
         selectLeague(leagues.first);
@@ -112,10 +119,50 @@ class TrendsController extends GetxController {
     }
     try {
       final result = await _apiService.fetchLeagueTeams(seasonId);
-      leagueTeams.assignAll(result?.data ?? []);
+      final teams = result?.data ?? [];
+      leagueTeams.assignAll(teams);
+      await _hydrateTeamStats();
     } catch (e, st) {
       prettyLogger('fetchLeagueTeams error: $e\n$st');
       leagueTeams.clear();
     }
+  }
+
+  Future<void> _hydrateTeamStats() async {
+    if (leagueTeams.isEmpty) return;
+
+    final List<LeagueTeam> enriched = [];
+    // Only pull for the first few to avoid hammering the API.
+    final targets = leagueTeams.take(8).toList();
+
+    for (final team in targets) {
+      var updated = team;
+      final id = team.id;
+      if (id != null) {
+        try {
+          final payload = await _apiService.fetchTeamStats(id);
+          final stats = payload?['stats'] as Map<String, dynamic>?;
+          if (stats != null) {
+            updated = team.copyWith(
+              h2h: _asNum(stats['winPercentage_overall']),
+              l5: _asNum(stats['seasonOver05Percentage_overall']),
+              l10: _asNum(stats['seasonOver15Percentage_overall']),
+              l20: _asNum(stats['seasonOver25Percentage_overall']),
+              over2425: _asNum(stats['seasonOver35Percentage_overall']),
+              over2325: _asNum(stats['seasonOver45Percentage_overall']),
+            );
+          }
+        } catch (e, st) {
+          prettyLogger('hydrateTeamStats error for $id: $e\n$st');
+        }
+      }
+      enriched.add(updated);
+    }
+
+    // Preserve ordering; append any remaining teams that weren't hydrated.
+    if (leagueTeams.length > enriched.length) {
+      enriched.addAll(leagueTeams.skip(enriched.length));
+    }
+    leagueTeams.assignAll(enriched);
   }
 }

@@ -59,6 +59,54 @@ class _TeamsState extends State<Teams> {
     ];
   }
 
+  List<num?> _teamStatValues(LeagueTeam team) {
+    return [
+      team.h2h,
+      team.l5,
+      team.l10,
+      team.l20,
+      team.over2425,
+      team.over2325,
+    ];
+  }
+
+  Widget _buildTrendRow(List<num?> values) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(labels.length, (i) {
+        final value = i < values.length ? values[i] : null;
+        return Row(
+          children: [
+            Column(
+              children: [
+                MyText(
+                  text: labels[i],
+                  size: 10,
+                  weight: FontWeight.w500,
+                  color: kQuaternaryColor,
+                  paddingBottom: 4,
+                ),
+                MyText(
+                  text: _formatPercent(value),
+                  size: 12,
+                  color: _valueColor(value),
+                  weight: FontWeight.w500,
+                ),
+              ],
+            ),
+            if (i < labels.length - 1)
+              Container(
+                width: 1,
+                height: 28,
+                color: kBorderColor,
+                margin: EdgeInsets.symmetric(horizontal: 8),
+              ),
+          ],
+        );
+      }),
+    );
+  }
+
   String _safeLabel(Data? league, {required String? fallback}) {
     if (league == null) return fallback ?? '--';
     return dbEnglishNameValues.reverse[league.englishName] ??
@@ -260,40 +308,7 @@ class _TeamsState extends State<Teams> {
                   color: kBorderColor,
                   margin: EdgeInsets.symmetric(vertical: 12),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(labels.length, (i) {
-                    final value = statValues[i];
-                    return Row(
-                      children: [
-                        Column(
-                          children: [
-                            MyText(
-                              text: labels[i],
-                              size: 10,
-                              weight: FontWeight.w500,
-                              color: kQuaternaryColor,
-                              paddingBottom: 4,
-                            ),
-                            MyText(
-                              text: _formatPercent(value),
-                              size: 12,
-                              color: _valueColor(value),
-                              weight: FontWeight.w500,
-                            ),
-                          ],
-                        ),
-                        if (i < labels.length - 1)
-                          Container(
-                            width: 1,
-                            height: 28,
-                            color: kBorderColor,
-                            margin: EdgeInsets.symmetric(horizontal: 8),
-                          ),
-                      ],
-                    );
-                  }),
-                ),
+                _buildTrendRow(statValues),
               ],
             ),
           ),
@@ -318,28 +333,55 @@ class _TeamsState extends State<Teams> {
                   ...teams.take(8).map(
                         (t) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: [
-                              CommonImageView(
-                                url: t.logo ?? '',
-                                height: 28,
-                                width: 28,
-                                radius: 14,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: kFillColor,
+                              gradient: LinearGradient(
+                                stops: [0.1, 0.9],
+                                colors: [
+                                  kSecondaryColor.withValues(alpha: 0),
+                                  kSecondaryColor.withValues(alpha: 0.12),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: MyText(
-                                  text: t.name ?? '--',
-                                  size: 13,
-                                  weight: FontWeight.w600,
+                              border: Border.all(width: 1.0, color: kBorderColor),
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    CommonImageView(
+                                      url: t.logo ?? '',
+                                      height: 28,
+                                      width: 28,
+                                      radius: 14,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: MyText(
+                                        text: t.name ?? '--',
+                                        size: 13,
+                                        weight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    MyText(
+                                      text: t.country ?? '',
+                                      size: 11,
+                                      color: kQuaternaryColor,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              MyText(
-                                text: t.country ?? '',
-                                size: 11,
-                                color: kQuaternaryColor,
-                              ),
-                            ],
+                                Container(
+                                  height: 1,
+                                  color: kBorderColor,
+                                  margin: EdgeInsets.symmetric(vertical: 12),
+                                ),
+                                _buildTrendRow(_teamStatValues(t)),
+                              ],
+                            ),
                           ),
                         ),
                       ),

@@ -2,18 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>949319954406-uq45gvk35j9dg2qjcq6p5il51tpe76o5.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.949319954406-uq45gvk35j9dg2qjcq6p5il51tpe76o5</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>949319954406-fr6u3dl5k06k44733a2t5c8ni5o7f32i.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyB0IRphobmz00jdi9w0YpgbICkasRGnlYs</string>
+	<string>AIzaSyBvfhVZXnJ-llJJn21mps8p3Ik4m1WwtS0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1033223304475</string>
+	<string>949319954406</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.gameGrid</string>
 	<key>PROJECT_ID</key>
-	<string>gamegrid-5cf89</string>
+	<string>game-grid-dcc11</string>
 	<key>STORAGE_BUCKET</key>
-	<string>gamegrid-5cf89.firebasestorage.app</string>
+	<string>game-grid-dcc11.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1033223304475:ios:823b428ab794ff25c04fbe</string>
+	<string>1:949319954406:ios:4b8083816bfd7b6603b027</string>
 </dict>
 </plist>

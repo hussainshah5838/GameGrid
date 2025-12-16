@@ -15,14 +15,14 @@ class LeagueDetailsModel {
   Pager pager;
   Metadata metadata;
   Data data;
-  String message;
+  String? message;
 
   LeagueDetailsModel({
     required this.success,
     required this.pager,
     required this.metadata,
     required this.data,
-    required this.message,
+    this.message,
   });
 
   factory LeagueDetailsModel.fromJson(Map<String, dynamic> json) =>
@@ -31,7 +31,7 @@ class LeagueDetailsModel {
         pager: Pager.fromJson(json["pager"]),
         metadata: Metadata.fromJson(json["metadata"]),
         data: Data.fromJson(json["data"]),
-        message: json["message"],
+        message: json["message"] as String?,
       );
 
   Map<String, dynamic> toJson() => {

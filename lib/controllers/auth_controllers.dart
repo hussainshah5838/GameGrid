@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:game_grid/config/helper/logger.dart';
 import 'package:game_grid/config/routes/routes.dart';
@@ -6,35 +8,37 @@ import 'package:game_grid/model/auth_model.dart';
 import 'package:game_grid/services/auth_services.dart';
 import 'package:game_grid/view/widget/common_show_snackbar_widget.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends GetxController {
-
-
   Rx<AuthModel?> currentUser = Rx<AuthModel?>(null);
   RxBool isLoading = false.obs;
+  RxBool isUpdatingProfile = false.obs;
 
-   RxBool hasFormError = false.obs;
+  RxBool hasFormError = false.obs;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   RxBool isTermsChecked = false.obs;
   RxString errorMessage = "".obs;
-   RxString nameError = "".obs;
+  RxString nameError = "".obs;
   RxString emailError = "".obs;
   RxString passwordError = "".obs;
+  RxBool isResettingPassword = false.obs;
 
-RxBool termsError = false.obs;
-   RxBool isPasswordHide = true.obs;
-   RxString emailErrorMessage = "".obs;
+  RxBool termsError = false.obs;
+  RxBool isPasswordHide = true.obs;
+  RxString emailErrorMessage = "".obs;
 
-   RxBool isRememberMeChecked = false.obs;
+  RxBool isRememberMeChecked = false.obs;
   RxString savedUid = "".obs;
+  Rx<File?> profileImage = Rx<File?>(null);
 
-
-  Future<void> saveCredentials(String uuid,) async {
+  Future<void> saveCredentials(
+    String uuid,
+  ) async {
     if (!isRememberMeChecked.value) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uuid', uuid);
-   
   }
 
   Future<void> loadSavedCredentials() async {
@@ -51,34 +55,58 @@ RxBool termsError = false.obs;
     await prefs.remove('uuid');
   }
 
+  Future<void> pickProfileImage() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        profileImage.value = File(pickedFile.path);
+      }
+    } catch (e) {
+      prettyLogger("Image selection error: $e");
+      showCommonSnackbarWidget(
+        "Error",
+        "Unable to select image. Please try again.",
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+    }
+  }
 
+  void clearProfileImage() {
+    profileImage.value = null;
+  }
 
-  togglePassword()=> isPasswordHide.value = !isPasswordHide.value;
-   void toggleRememberMe() => isRememberMeChecked.value = !isRememberMeChecked.value;
+  togglePassword() => isPasswordHide.value = !isPasswordHide.value;
+  void toggleRememberMe() =>
+      isRememberMeChecked.value = !isRememberMeChecked.value;
 
   void toggleCheckBox() {
-  isTermsChecked.value = !isTermsChecked.value;
+    isTermsChecked.value = !isTermsChecked.value;
 
-  if (isTermsChecked.value) {
-    termsError.value = false;
-   
+    if (isTermsChecked.value) {
+      termsError.value = false;
+    }
   }
-}
 
-void resetForm() {
-  nameError.value = "";
-  emailError.value = "";
-  passwordError.value = "";
-  emailErrorMessage.value = "";
-  errorMessage.value = "";
+  void resetForm() {
+    nameError.value = "";
+    emailError.value = "";
+    passwordError.value = "";
+    emailErrorMessage.value = "";
+    errorMessage.value = "";
 
-  isTermsChecked.value = false;
-  termsError.value = false;
-  isPasswordHide.value = true;
+    isTermsChecked.value = false;
+    termsError.value = false;
+    isPasswordHide.value = true;
 
-  formKey.currentState?.reset();
-}
-
+    formKey.currentState?.reset();
+  }
 
   bool validateEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -93,7 +121,7 @@ void resetForm() {
     return true;
   }
 
-   bool validatePassword(String? value) {
+  bool validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       passwordError.value = "Password is required";
       return false;
@@ -115,7 +143,7 @@ void resetForm() {
     return true;
   }
 
-    bool validateForm(String name, String email, String password) {
+  bool validateForm(String name, String email, String password) {
     final validName = validateName(name);
     final validEmail = validateEmail(email);
     final validPassword = validatePassword(password);
@@ -129,133 +157,240 @@ void resetForm() {
     return validName && validEmail && validPassword && isTermsChecked.value;
   }
 
+  Future<void> signUp(
+    String email,
+    String password,
+    String name,
+  ) async {
+    isLoading.value = true;
 
-  Future<void> signUp(String email, String password, String name,
-    ) async {
-  isLoading.value = true;
-  
-  try {
-    final user = await AuthServices.instance.signUp(
-      email: email,
-      password: password,
-      name: name,
-      
-    );
-    currentUser.value = user;
+    try {
+      final user = await AuthServices.instance.signUp(
+        email: email,
+        password: password,
+        name: name,
+      );
+      currentUser.value = user;
 
-    if (user?.uid != null) {
-      showCommonSnackbarWidget("Success", 
-    "Account Registered Successfully", kBorderColor2, kBorderColor2, kGreenColor3);
-      Get.offAllNamed(AppLinks.loginScreen);
-      resetForm();
-      prettyLogger("Registered");
+      if (user?.uid != null) {
+        showCommonSnackbarWidget("Success", "Account Registered Successfully",
+            kBorderColor2, kBorderColor2, kGreenColor3);
+        Get.offAllNamed(AppLinks.loginScreen);
+        resetForm();
+        prettyLogger("Registered");
+      }
+    } catch (e) {
+      errorMessage.value = parseErrorMessage(e);
+      showCommonSnackbarWidget("Error", "${errorMessage.value}", kBorderColor2,
+          kBorderColor2, kRedColor);
+      prettyLogger("Error creating user: ${errorMessage.value}");
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    errorMessage.value = parseErrorMessage(e);
-    showCommonSnackbarWidget("Error", 
-    "${errorMessage.value}", kBorderColor2, kBorderColor2, kRedColor);
-    prettyLogger("Error creating user: ${errorMessage.value}");
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-
-bool validateEmailAndPassword(String email, String password) {
-  bool isValid = true;
-
-  if (email.isEmpty) {
-    emailError.value = "Email is required";
-    isValid = false;
-  } else if (!GetUtils.isEmail(email)) {
-    emailError.value = "Enter a valid email address";
-    isValid = false;
-  } else {
-    emailError.value = "";
   }
 
+  bool validateEmailAndPassword(String email, String password) {
+    bool isValid = true;
 
-  if (password.isEmpty) {
-    passwordError.value = "Password is required";
-    isValid = false;
-  } else if (password.length < 6) {
-    passwordError.value = "Password must be at least 6 characters";
-    isValid = false;
-  } else {
-    passwordError.value = "";
+    if (email.isEmpty) {
+      emailError.value = "Email is required";
+      isValid = false;
+    } else if (!GetUtils.isEmail(email)) {
+      emailError.value = "Enter a valid email address";
+      isValid = false;
+    } else {
+      emailError.value = "";
+    }
+
+    if (password.isEmpty) {
+      passwordError.value = "Password is required";
+      isValid = false;
+    } else if (password.length < 6) {
+      passwordError.value = "Password must be at least 6 characters";
+      isValid = false;
+    } else {
+      passwordError.value = "";
+    }
+
+    return isValid;
   }
 
-  return isValid;
-}
+  Future checkEmailVerified() async {}
 
+  Future<void> signInWithGoogle({bool fromSignupScreen = false}) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = "";
 
+      final user = await AuthServices.instance.signInWithGoogle();
+      if (user == null) {
+        return;
+      }
 
+      currentUser.value = user;
 
-  Future checkEmailVerified()async{
+      if (isRememberMeChecked.value) {
+        await saveCredentials(user.uid);
+      } else {
+        await clearSavedCredentials();
+      }
 
+      showCommonSnackbarWidget(
+        "Success",
+        fromSignupScreen
+            ? "Account created with Google."
+            : "Signed in with Google.",
+        kBorderColor2,
+        kBorderColor2,
+        kGreenColor3,
+      );
+      Get.offAllNamed(AppLinks.navbarScreen);
+    } catch (e) {
+      errorMessage.value = parseErrorMessage(e);
+      prettyLogger("Google sign-in error: $e");
+      showCommonSnackbarWidget(
+        "Error",
+        "${errorMessage.value}",
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
-
-
-  
-
 
   Future<void> login(String email, String password) async {
     try {
       isLoading.value = true;
       errorMessage.value = "";
-      final user = await AuthServices.instance.login(email: email, password: password);
+      final user =
+          await AuthServices.instance.login(email: email, password: password);
       currentUser.value = user;
 
-      if(currentUser.value!.uid.isNotEmpty){
-
-
-      if (isRememberMeChecked.value) {
-        await saveCredentials(user!.uid);
-      } else {
-        await clearSavedCredentials();
-      }
-      Get.offAllNamed(AppLinks.navbarScreen);
+      if (currentUser.value!.uid.isNotEmpty) {
+        if (isRememberMeChecked.value) {
+          await saveCredentials(user!.uid);
+        } else {
+          await clearSavedCredentials();
+        }
+        Get.offAllNamed(AppLinks.navbarScreen);
       }
     } catch (e) {
-       errorMessage.value = parseErrorMessage(e);
-       prettyLogger(e);
-       showCommonSnackbarWidget("Error", 
-    "${errorMessage.value}", kBorderColor2, kBorderColor2, kRedColor);
-
+      errorMessage.value = parseErrorMessage(e);
+      prettyLogger(e);
+      showCommonSnackbarWidget("Error", "${errorMessage.value}", kBorderColor2,
+          kBorderColor2, kRedColor);
     } finally {
       isLoading.value = false;
     }
   }
 
   String parseErrorMessage(dynamic error) {
-   
     if (error.toString().contains('email-already-in-use')) {
       return 'This email is already registered.';
     } else if (error.toString().contains('weak-password')) {
       return 'Password is too weak. Use at least 6 characters.';
     } else if (error.toString().contains('invalid-email')) {
       return 'Invalid email format.';
+    } else if (error.toString().contains('requires-recent-login')) {
+      return 'Please re-login to update your email.';
     } else {
       return 'An error occurred. Please try again.';
     }
   }
 
-
-Future<void> loadCurrentUserDetails() async {
-  isLoading.value = true;
-  try {
-    final uid = currentUser.value?.uid;
-    if (uid != null) {
-      final userDetails = await AuthServices.instance.fetchCurrentUserDetails(uid);
-      currentUser.value = userDetails;
+  Future<void> loadCurrentUserDetails() async {
+    isLoading.value = true;
+    try {
+      final uid = currentUser.value?.uid;
+      if (uid != null) {
+        final userDetails =
+            await AuthServices.instance.fetchCurrentUserDetails(uid);
+        currentUser.value = userDetails;
+      }
+    } catch (e) {
+      prettyLogger("Error loading current user: $e");
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    prettyLogger("Error loading current user: $e");
-  } finally {
-    isLoading.value = false;
   }
-}
 
+  Future<void> updateProfile({
+    required String firstName,
+    required String lastName,
+    required String email,
+    String? phone,
+  }) async {
+    final uid = currentUser.value?.uid;
+    if (uid == null) {
+      showCommonSnackbarWidget(
+        "Error",
+        "No user found. Please login again.",
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+      return;
+    }
+
+    final fullName =
+        '$firstName $lastName'.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (fullName.isEmpty) {
+      showCommonSnackbarWidget(
+        "Error",
+        "Name cannot be empty.",
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+      return;
+    }
+
+    if (!GetUtils.isEmail(email.trim())) {
+      showCommonSnackbarWidget(
+        "Error",
+        "Enter a valid email address.",
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+      return;
+    }
+
+    try {
+      isUpdatingProfile.value = true;
+      final updatedUser = await AuthServices.instance.updateProfile(
+        uid: uid,
+        name: fullName,
+        email: email.trim(),
+        phone: phone,
+        imageFile: profileImage.value,
+      );
+      if (updatedUser != null) {
+        currentUser.value = updatedUser;
+        clearProfileImage();
+        showCommonSnackbarWidget(
+          "Success",
+          "Profile updated successfully.",
+          kBorderColor2,
+          kBorderColor2,
+          kGreenColor3,
+        );
+      }
+    } catch (e) {
+      prettyLogger("Profile update error: $e");
+      showCommonSnackbarWidget(
+        "Error",
+        parseErrorMessage(e),
+        kBorderColor2,
+        kBorderColor2,
+        kRedColor,
+      );
+    } finally {
+      isUpdatingProfile.value = false;
+    }
+  }
 
   Future<void> logout() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -263,6 +398,22 @@ Future<void> loadCurrentUserDetails() async {
     await AuthServices.instance.logout();
     currentUser.value = null;
     Get.offAllNamed(AppLinks.loginScreen);
+  }
+
+  Future<bool> sendPasswordReset(String email) async {
+    final valid = validateEmail(email);
+    if (!valid) return false;
+    try {
+      isResettingPassword.value = true;
+      await AuthServices.instance.sendPasswordResetEmail(email.trim());
+      return true;
+    } catch (e) {
+      errorMessage.value = parseErrorMessage(e);
+      prettyLogger("reset password error: $e");
+      return false;
+    } finally {
+      isResettingPassword.value = false;
+    }
   }
 
   Future<void> loadCurrentUser() async {

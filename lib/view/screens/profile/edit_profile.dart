@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/auth_controllers.dart';
 import 'package:game_grid/main.dart';
+import 'package:game_grid/model/auth_model.dart';
 import 'package:game_grid/view/widget/common_image_view_widget.dart';
 import 'package:game_grid/view/widget/custom_app_bar.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
@@ -10,9 +12,67 @@ import 'package:game_grid/view/widget/heading_tile_widget.dart';
 import 'package:game_grid/view/widget/my_button_widget.dart';
 import 'package:game_grid/view/widget/my_text_field_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
+import 'package:get/get.dart';
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
+
+  @override
+  State<EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
+  final AuthController authController = Get.find();
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _emailController;
+  Worker? _userListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _emailController = TextEditingController();
+
+    _fillControllers(authController.currentUser.value);
+    _userListener =
+        ever<AuthModel?>(authController.currentUser, _fillControllers);
+    authController.loadCurrentUserDetails();
+  }
+
+  @override
+  void dispose() {
+    _userListener?.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    authController.clearProfileImage();
+    super.dispose();
+  }
+
+  void _fillControllers(AuthModel? user) {
+    if (user == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final nameParts = (user.name ?? '').trim().split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lastName =
+          nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+      _firstNameController.text = firstName;
+      _lastNameController.text = lastName;
+      _emailController.text = user.email;
+    });
+  }
+
+  Future<void> _updateProfile() async {
+    await authController.updateProfile(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +101,19 @@ class EditProfile extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(width: 1.0, color: kTertiaryColor),
                     ),
-                    child: CommonImageView(
-                      height: 50,
-                      width: 50,
-                      radius: 100.0,
-                      url: dummyImg,
-                    ),
+                    child: Obx(() {
+                      final imageFile = authController.profileImage.value;
+                      final user = authController.currentUser.value;
+                      final imageUrl =
+                          user?.photoUrl?.isNotEmpty == true ? user!.photoUrl : null;
+                      return CommonImageView(
+                        height: 50,
+                        width: 50,
+                        radius: 100.0,
+                        file: imageFile,
+                        url: imageFile == null ? (imageUrl ?? dummyImg) : null,
+                      );
+                    }),
                   ),
                   SizedBox(width: 8),
                   Expanded(
@@ -73,7 +140,9 @@ class EditProfile extends StatelessWidget {
                     child: MyButton(
                       height: 32,
                       buttonText: '',
-                      onTap: () {},
+                      onTap: () {
+                        authController.pickProfileImage();
+                      },
                       radius: 8,
                       customChild: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -97,9 +166,18 @@ class EditProfile extends StatelessWidget {
             SizedBox(height: 16),
             HeadingTile(title: 'Personal Information'),
             SizedBox(height: 12),
-            MyTextField(labelText: "First Name", hintText: 'Kevin'),
-            MyTextField(labelText: "Last Name", hintText: 'Backer'),
             MyTextField(
+              controller: _firstNameController,
+              labelText: "First Name",
+              hintText: 'Kevin',
+            ),
+            MyTextField(
+              controller: _lastNameController,
+              labelText: "Last Name",
+              hintText: 'Backer',
+            ),
+            MyTextField(
+              controller: _emailController,
               labelText: "Email Address",
               hintText: 'Kevinbacker234@gmail.com',
             ),
@@ -107,7 +185,13 @@ class EditProfile extends StatelessWidget {
         ),
         bottomNavigationBar: Padding(
           padding: AppSizes.DEFAULT,
-          child: MyButton(buttonText: "Update", onTap: () {}),
+          child: Obx(
+            () => MyButton(
+              buttonText: "Update",
+              isLoading: authController.isUpdatingProfile.value,
+              onTap: _updateProfile,
+            ),
+          ),
         ),
       ),
     );

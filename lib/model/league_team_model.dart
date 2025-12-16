@@ -5,6 +5,13 @@ import 'dart:convert';
 LeagueTeamsModel leagueTeamsModelFromJson(String str) =>
     LeagueTeamsModel.fromJson(json.decode(str));
 
+num? _parseNum(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value;
+  if (value is String) return num.tryParse(value);
+  return null;
+}
+
 class LeagueTeamsModel {
   final bool? success;
   final Pager? pager;
@@ -43,6 +50,12 @@ class LeagueTeam {
   final String? leagueName;
   final int? seasonId;
   final String? season;
+  final num? h2h;
+  final num? l5;
+  final num? l10;
+  final num? l20;
+  final num? over2425;
+  final num? over2325;
 
   LeagueTeam({
     this.id,
@@ -54,7 +67,49 @@ class LeagueTeam {
     this.leagueName,
     this.seasonId,
     this.season,
+    this.h2h,
+    this.l5,
+    this.l10,
+    this.l20,
+    this.over2425,
+    this.over2325,
   });
+
+  LeagueTeam copyWith({
+    int? id,
+    String? name,
+    String? shortCode,
+    String? country,
+    String? logo,
+    int? leagueId,
+    String? leagueName,
+    int? seasonId,
+    String? season,
+    num? h2h,
+    num? l5,
+    num? l10,
+    num? l20,
+    num? over2425,
+    num? over2325,
+  }) {
+    return LeagueTeam(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      shortCode: shortCode ?? this.shortCode,
+      country: country ?? this.country,
+      logo: logo ?? this.logo,
+      leagueId: leagueId ?? this.leagueId,
+      leagueName: leagueName ?? this.leagueName,
+      seasonId: seasonId ?? this.seasonId,
+      season: season ?? this.season,
+      h2h: h2h ?? this.h2h,
+      l5: l5 ?? this.l5,
+      l10: l10 ?? this.l10,
+      l20: l20 ?? this.l20,
+      over2425: over2425 ?? this.over2425,
+      over2325: over2325 ?? this.over2325,
+    );
+  }
 
   factory LeagueTeam.fromJson(Map<String, dynamic> json) => LeagueTeam(
         id: json['id'] as int?,
@@ -66,6 +121,16 @@ class LeagueTeam {
         leagueName: json['league_name'] as String?,
         seasonId: json['season_id'] as int?,
         season: json['season']?.toString(),
+        h2h: _parseNum(json['h2h']),
+        l5: _parseNum(json['l5']),
+        l10: _parseNum(json['l10']),
+        l20: _parseNum(json['l20']),
+        over2425: _parseNum(
+          json['24_25'] ?? json['24-25'] ?? json['24/25'],
+        ),
+        over2325: _parseNum(
+          json['23_25'] ?? json['23-25'] ?? json['23/25'],
+        ),
       );
 }
 

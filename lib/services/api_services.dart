@@ -52,10 +52,18 @@ class ApiService {
 
       if (resp.statusCode == 200) {
         prettyLogger(resp.data);
-        return MatchDetailsModel.fromJson(resp.data);
-      } else {
-        return resp.data;
+        final data = resp.data;
+        if (data is Map<String, dynamic>) {
+          final hasPayload = data['data'] != null;
+          if (hasPayload) {
+            return MatchDetailsModel.fromJson(data);
+          }
+          final msg = data['message'] ?? 'No match data returned';
+          throw Exception(msg.toString());
+        }
+        throw Exception('Unexpected match response shape');
       }
+      throw Exception('Match-details request failed: ${resp.statusCode}');
     } catch (e) {
       throw ("Error $e");
     }
@@ -213,6 +221,36 @@ class ApiService {
         throw Exception('Unexpected league-teams response shape');
       }
       throw Exception('League-teams request failed: ${resp.statusCode}');
+    } catch (e) {
+      throw ("Error $e");
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchTeamStats(int teamId) async {
+    try {
+      final resp = await dio.get(
+        "${_baseUrl}team",
+        queryParameters: {
+          "key":
+              "2721f00df0f151eb69007bb25680d802914a91c582599887e48bc139e37ffcc6",
+          "team_id": teamId,
+        },
+      );
+
+      if (resp.statusCode == 200) {
+        final data = resp.data;
+        prettyLogger(data);
+        if (data is Map<String, dynamic>) {
+          final list = data['data'];
+          if (list is List && list.isNotEmpty && list.first is Map) {
+            return list.first as Map<String, dynamic>;
+          }
+          final msg = data['message'] ?? 'No team data returned';
+          throw Exception(msg.toString());
+        }
+        throw Exception('Unexpected team response shape');
+      }
+      throw Exception('Team request failed: ${resp.statusCode}');
     } catch (e) {
       throw ("Error $e");
     }

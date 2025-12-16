@@ -22,7 +22,7 @@ import 'package:game_grid/view/widget/my_text_widget.dart';
 import 'package:get/get.dart';
 
 class Profile extends StatefulWidget {
-   Profile({super.key});
+  Profile({super.key});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -33,12 +33,9 @@ class _ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    
     super.initState();
     authController.loadCurrentUserDetails();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +59,17 @@ class _ProfileState extends State<Profile> {
                       shape: BoxShape.circle,
                       border: Border.all(width: 1.0, color: kSecondaryColor),
                     ),
-                    child: CommonImageView(
-                      height: 80,
-                      width: 80,
-                      radius: 100.0,
-                      url: dummyImg,
-                    ),
+                    child: Obx(() {
+                      final user = authController.currentUser.value;
+                      final imageUrl =
+                          user?.photoUrl?.isNotEmpty == true ? user!.photoUrl : dummyImg;
+                      return CommonImageView(
+                        height: 80,
+                        width: 80,
+                        radius: 100.0,
+                        url: imageUrl,
+                      );
+                    }),
                   ),
                   Positioned(
                     right: 5,
@@ -77,27 +79,36 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
             ),
-          Obx( () => authController.isLoading.value ? 
-          CommonShimmer(
-            height: 10,
-            width: 20,
-          )
-           :  MyText(
-              paddingTop: 12,
-              size: 16,
-              textAlign: TextAlign.center,
-              weight: FontWeight.w700,
-              text: authController.currentUser.value!.name ?? "",
-            )),
-           Obx( () => MyText(
-              paddingTop: 6,
-              size: 14,
-              textAlign: TextAlign.center,
-              weight: FontWeight.w500,
-              color: kQuaternaryColor,
-              text: authController.currentUser.value!.email,
-              paddingBottom: 16,
-            )),
+            Obx(() {
+              if (authController.isLoading.value) {
+                return CommonShimmer(
+                  height: 10,
+                  width: 20,
+                );
+              }
+              final user = authController.currentUser.value;
+              final name = (user?.name ?? '').trim();
+              return MyText(
+                paddingTop: 12,
+                size: 16,
+                textAlign: TextAlign.center,
+                weight: FontWeight.w700,
+                text: name.isNotEmpty ? name : 'Guest',
+              );
+            }),
+            Obx(() {
+              final user = authController.currentUser.value;
+              final email = (user?.email ?? '').trim();
+              return MyText(
+                paddingTop: 6,
+                size: 14,
+                textAlign: TextAlign.center,
+                weight: FontWeight.w500,
+                color: kQuaternaryColor,
+                text: email.isNotEmpty ? email : 'Not available',
+                paddingBottom: 16,
+              );
+            }),
             Center(
               child: SizedBox(
                 width: 130,

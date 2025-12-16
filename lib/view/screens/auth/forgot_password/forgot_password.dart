@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/auth_controllers.dart';
 import 'package:game_grid/view/screens/auth/forgot_password/reset_password.dart';
 import 'package:game_grid/view/widget/custom_container_widget.dart';
 import 'package:game_grid/view/widget/custom_dialog_widget.dart';
@@ -9,6 +10,7 @@ import 'package:game_grid/view/widget/heading_widget.dart';
 import 'package:game_grid/view/widget/my_button_widget.dart';
 import 'package:game_grid/view/widget/my_text_field_widget.dart';
 import 'package:game_grid/view/widget/my_text_widget.dart';
+import 'package:game_grid/view/widget/common_show_snackbar_widget.dart';
 import 'package:get/get.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -17,20 +19,18 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
+  final AuthController authController = Get.find();
   late TextEditingController _emailController;
-  late TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
     _emailController = TextEditingController();
-    _passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -49,14 +49,21 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               subTitle:
                   "Please enter the email address that start’s with k*********@gmail.com",
             ),
-            MyTextField(
-              labelText: 'Email address',
-              hintText: 'Enter your email',
-              suffix: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Image.asset(Assets.imagesEmail, height: 24)],
-              ),
-            ),
+            Obx(() => MyTextField(
+                  controller: _emailController,
+                  labelText: 'Email address',
+                  hintText: 'Enter your email',
+                  hasError: authController.emailError.value.isNotEmpty,
+                  errorMessage: authController.emailError.value,
+                  onChanged: authController.validateEmail,
+                  validator: (value) {
+                    return authController.validateEmail(value) ? null : 'Invalid email address';
+                  },
+                  suffix: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Image.asset(Assets.imagesEmail, height: 24)],
+                  ),
+                )),
           ],
         ),
         bottomNavigationBar: Padding(
@@ -65,24 +72,40 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              MyButton(
-                buttonText: 'Send Verification Link',
-                onTap: () {
-                  Get.dialog(
-                    CustomDialog(
-                      image: Assets.imagesEmailSent,
-                      title: 'Mail Sent !',
-                      subTitle:
-                          'We have sent a mail on your given email address. Please verify and reset your password.',
-                      buttonText: 'Check Email',
-                      onTap: () {
-                        Get.back();
-                        Get.to(() => ResetPassword());
-                      },
-                    ),
-                  );
-                },
-              ),
+              Obx(() => MyButton(
+                    isLoading: authController.isResettingPassword.value,
+                    buttonText: 'Send Verification Link',
+                    onTap: () async {
+                      final email = _emailController.text.trim();
+                      final success =
+                          await authController.sendPasswordReset(email);
+                      if (!success) {
+                        showCommonSnackbarWidget(
+                          "Error",
+                          authController.errorMessage.value.isNotEmpty
+                              ? authController.errorMessage.value
+                              : "Unable to send reset link. Please try again.",
+                          kBorderColor2,
+                          kBorderColor2,
+                          kRedColor,
+                        );
+                        return;
+                      }
+
+                      Get.dialog(
+                        CustomDialog(
+                          image: Assets.imagesEmailSent,
+                          title: 'Mail Sent !',
+                          subTitle:
+                              'We have sent a mail on your given email address. Please verify and reset your password.',
+                          buttonText: 'Check Email',
+                          onTap: () {
+                            Get.back();
+                          },
+                        ),
+                      );
+                    },
+                  )),
               SizedBox(height: 20),
               Wrap(
                 alignment: WrapAlignment.center,

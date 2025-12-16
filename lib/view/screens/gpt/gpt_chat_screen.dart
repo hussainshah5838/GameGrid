@@ -3,6 +3,7 @@ import 'package:game_grid/constants/app_colors.dart';
 import 'package:game_grid/constants/app_fonts.dart';
 import 'package:game_grid/constants/app_images.dart';
 import 'package:game_grid/constants/app_sizes.dart';
+import 'package:game_grid/controllers/ai_assistant_controller.dart';
 import 'package:game_grid/view/screens/gpt/gpt_drawer.dart';
 import 'package:game_grid/view/screens/gpt/select_casino.dart';
 import 'package:game_grid/view/widget/custom_app_bar.dart';
@@ -22,30 +23,29 @@ class GptChatScreen extends StatefulWidget {
 
 class _GptChatScreenState extends State<GptChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [
-    {
-      "role": "user",
-      "text":
-          "I only have 5 minutes to place a bet, give me the best bet for today!",
-    },
-    {
-      "role": "assistant",
-      "text":
-          "Lamine Yamal is currently averaging 6 regular shots and 2.7 Shots on target per game playing at home. Real Madrid allows most shots per goal to right wingers in La Liga, they concede 7 Shots on target playing away",
-    },
-  ];
+  late final AiAssistantController _aiController;
+
+  final _key = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _aiController = Get.put(AiAssistantController());
+  }
 
   void _sendMessage() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _messages.add({"role": "user", "text": text});
-      _controller.clear();
-      _messages.add({"role": "assistant", "text": "(AI response placeholder)"});
-    });
+    _controller.clear();
+    _aiController.sendMessage(text);
   }
 
-  final _key = GlobalKey<ScaffoldState>();
+  @override
+  void dispose() {
+    _controller.dispose();
+    Get.delete<AiAssistantController>();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,48 +82,109 @@ class _GptChatScreenState extends State<GptChatScreen> {
         body: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: BouncingScrollPhysics(),
-                padding: AppSizes.DEFAULT,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  final isUser = msg["role"] == "user";
-                  return Align(
-                    alignment: isUser
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(
-                        isUser ? 60 : 0,
-                        0,
-                        isUser ? 0 : 60,
-                        12,
-                      ),
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isUser ? kFillColor : kSecondaryColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 1.0,
-                          color: isUser ? kBorderColor : kSecondaryColor,
+              child: Obx(() {
+                final messages = _aiController.messages;
+                final isSending = _aiController.isSending.value;
+                final itemCount = messages.length + (isSending ? 1 : 0);
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  padding: AppSizes.DEFAULT,
+                  itemCount: itemCount,
+                  itemBuilder: (context, index) {
+                    if (index >= messages.length) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          margin: EdgeInsets.only(right: 60, bottom: 12),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: kSecondaryColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              width: 1.0,
+                              color: kSecondaryColor,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                height: 14,
+                                width: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Analyzing football stats...',
+                                style: TextStyle(
+                                  color: kPrimaryColor,
+                                  fontSize: 14,
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    final msg = messages[index];
+                    final isUser = msg.role == ChatRole.user;
+                    return Align(
+                      alignment: isUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(
+                          isUser ? 60 : 0,
+                          0,
+                          isUser ? 0 : 60,
+                          12,
+                        ),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isUser ? kFillColor : kSecondaryColor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            width: 1.0,
+                            color: isUser ? kBorderColor : kSecondaryColor,
+                          ),
+                        ),
+                        child: Text(
+                          msg.text,
+                          style: TextStyle(
+                            color: isUser ? kTertiaryColor : kPrimaryColor,
+                            fontSize: 14,
+                            height: 1.5,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        msg["text"] ?? '',
-                        style: TextStyle(
-                          color: isUser ? kTertiaryColor : kPrimaryColor,
-                          fontSize: 14,
-                          height: 1.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                );
+              }),
             ),
+            Obx(() {
+              final error = _aiController.error.value;
+              if (error.isEmpty) return SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  error,
+                  style: TextStyle(
+                    color: kRedColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(

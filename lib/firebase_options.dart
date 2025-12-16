@@ -51,19 +51,21 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBsHWib_vZ6fpGlx6Xel7mss-hQDvEUMzw',
-    appId: '1:1033223304475:android:683f2870d6be4d2cc04fbe',
-    messagingSenderId: '1033223304475',
-    projectId: 'gamegrid-5cf89',
-    storageBucket: 'gamegrid-5cf89.firebasestorage.app',
+    apiKey: 'AIzaSyAlJfImpW6c_lhcGJSKrlpQNNROqBZBtqI',
+    appId: '1:949319954406:android:d1a33802e3ccbe7303b027',
+    messagingSenderId: '949319954406',
+    projectId: 'game-grid-dcc11',
+    storageBucket: 'game-grid-dcc11.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB0IRphobmz00jdi9w0YpgbICkasRGnlYs',
-    appId: '1:1033223304475:ios:823b428ab794ff25c04fbe',
-    messagingSenderId: '1033223304475',
-    projectId: 'gamegrid-5cf89',
-    storageBucket: 'gamegrid-5cf89.firebasestorage.app',
+    apiKey: 'AIzaSyBvfhVZXnJ-llJJn21mps8p3Ik4m1WwtS0',
+    appId: '1:949319954406:ios:4b8083816bfd7b6603b027',
+    messagingSenderId: '949319954406',
+    projectId: 'game-grid-dcc11',
+    storageBucket: 'game-grid-dcc11.firebasestorage.app',
+    androidClientId: '949319954406-fr6u3dl5k06k44733a2t5c8ni5o7f32i.apps.googleusercontent.com',
+    iosClientId: '949319954406-uq45gvk35j9dg2qjcq6p5il51tpe76o5.apps.googleusercontent.com',
     iosBundleId: 'com.example.gameGrid',
   );
 
